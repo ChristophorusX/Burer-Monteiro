@@ -15,7 +15,7 @@ def augmented_lagrangian(Y, k, plotting=False, printing=True):
 
     n, _ = Y.shape
     y = np.ones(n).reshape((-1, 1))
-    R = np.random.random_sample((n, k))
+    R = np.random.uniform(-1, 1, size=(n, k))
     penalty = 1
     gamma = 10
     eta = .25
@@ -48,12 +48,12 @@ def augmented_lagrangian(Y, k, plotting=False, printing=True):
     return R
 
 
-def _generate_random_R(n, k):
-    """Returns a random initialization of R."""
+def _generate_random_rect(n, k):
+    """Returns a random initialization of matrix."""
 
-    R = np.random.uniform(-2, 2, (n, k))
-    # for i in range(n):
-    #     R[i, :] = R[i, :] / np.linalg.norm(R[i, :])
+    R = np.random.uniform(-1, 1, (n, k))
+    for i in range(n):
+        R[i, :] = R[i, :] / np.linalg.norm(R[i, :])
     return R
 
 
@@ -75,6 +75,8 @@ def _A_trace_vec(n, R):
 
 
 def _constraint_term_vec(n, R):
+    """Returns the vector required to compute objective function value."""
+
     vec = _A_trace_vec(n, R)
     constraint = vec - np.ones(n).reshape((-1, 1))
     return constraint
@@ -140,7 +142,7 @@ def trust_region(A, k, plotting=False):
 
     print('Starting trust region on manifold...')
     n, _ = A.shape
-    Y = _generate_random_R(n, k)
+    Y = _generate_random_rect(n, k)
     return minimize_with_trust(lambda Yv: obj_function(A, Yv, n, k), Y, k, plotting, jac=lambda Yv: _proj_grad_from_vec(
         A, Yv, n, k), hessp=lambda Yv, Tv: _hessian_p(A, Yv, Tv, n, k))
 
@@ -150,7 +152,7 @@ def trust_region_plotting(A, k):
 
     print('Starting trust region on manifold...')
     n, _ = A.shape
-    Y = _generate_random_R(n, k)
+    Y = _generate_random_rect(n, k)
     return minimize_with_trust(lambda Yv: obj_function(A, Yv, n, k), Y, k, jac=lambda Yv: _proj_grad_from_vec(
         A, Yv, n, k), hessp=lambda Yv, Tv: _hessian_p(A, Yv, Tv, n, k))
 
