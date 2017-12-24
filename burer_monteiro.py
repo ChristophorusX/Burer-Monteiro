@@ -51,9 +51,9 @@ def augmented_lagrangian(Y, k, plotting=False, printing=True):
 def _generate_random_R(n, k):
     """Returns a random initialization of R."""
 
-    R = np.random.uniform(-1, 1, (n, k))
-    for i in range(n):
-        R[i, :] = R[i, :] / np.linalg.norm(R[i, :])
+    R = np.random.uniform(-2, 2, (n, k))
+    # for i in range(n):
+    #     R[i, :] = R[i, :] / np.linalg.norm(R[i, :])
     return R
 
 
@@ -194,7 +194,7 @@ def _hessian_p(A, Yv, Tv, n, k):
 
 def _retraction(Tv):
     """Returns the retracted point given one on the tangent plane."""
-    
+
     T = _vector_to_matrix(Tv, 2)
     n, _ = T.shape
     for i in range(n):
