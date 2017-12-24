@@ -8,36 +8,44 @@ import aux
 
 
 def _spectral_gap(A, z):
+    """Returns dual spectral gap given observation A and ground truth z."""
     gap = aux.laplacian_eigs(A, z)[1]
     print('Spectral gap: {}'.format(gap))
     return gap
 
 
 def _gen_sync(n, percentage, snr):
+    """Returns a random observation from synchronization problem."""
     return syncgen.synchronization_usual(n, percentage, snr)
 
 
 def _gen_sbm(n, a, b):
+    """Returns a random observation from connected SBM."""
     return sbmgen.sbm_logarithm(n, a, b)
 
 
 def _check_spectral_gap(A, z):
-    if _spectral_gap(A, z) > .001:
+    """Returns if the spectral gap is positive."""
+    if _spectral_gap(A, z) > np.exp(-8):
         return True
     else:
         return False
 
 
 def _gen_sparse_mat(n, level):
+    """Returns a sparse matrix with at most 4 elements non-zero."""
     mat = np.zeros(n**2)
     for i in range(2):
         index = np.random.randint(n**2)
         mat[index] = level
     mat = mat.reshape((n, n))
+    triu = np.triu(mat)
+    mat = triu + triu.T
     return mat
 
 
 def _gen_row_mat(n, level):
+    """Returns a matrix with at most 4 rows and cols non-zero."""
     mat = np.zeros((n, n))
     for i in range(2):
         index = np.random.randint(n)
@@ -47,6 +55,7 @@ def _gen_row_mat(n, level):
 
 
 def search_counter_eg(n, level, drift, n_iter, n_trail):
+    """Returns instances where SDP recovers but BM only finds local maximizer."""
     # found_target = False
     examples = []
 
@@ -149,7 +158,7 @@ def search_counter_eg(n, level, drift, n_iter, n_trail):
                     n_clusters=2, random_state=0).fit(Q)
                 clustering = 2 * kmeans.labels_ - 1
                 err = aux.error_rate(clustering, z.ravel())
-                print('===Error rate for BM is: {}==='.format(err))
+                print('===Error rate for rounded BM is: {}==='.format(err))
                 Q = bm.augmented_lagrangian(
                     A, 2, plotting=False, printing=False)
                 # kmeans = cluster.KMeans(
@@ -162,9 +171,20 @@ def search_counter_eg(n, level, drift, n_iter, n_trail):
                 err = np.linalg.norm(X - X_result, 1)
                 corr = np.linalg.norm(np.dot(Q.T, z), 2)
                 largest_diff = np.max(np.abs(X - X_result))
+                pair_diff = 0
+                for k in range(n):
+                    for l in range(n):
+                        if k != l:
+                            vec1 = Q[k, :]
+                            vec2 = Q[l, :]
+                            d = np.linalg.norm(vec1 - vec2, 2)
+                            if d > pair_diff:
+                                pair_diff = d
+
                 print('The correlation factor is: {}...'.format(corr / n))
                 print('The norm 1 error for BM is: {}...'.format(err / n**2))
                 print('The largest element diff is: {}...'.format(largest_diff))
+                print('The largest pairwise difference is: {}...'.format(pair_diff))
                 N = A - z.dot(z.T)
                 diagN = np.diag(N.dot(z).ravel())
                 spectral_overall = np.sort(np.linalg.eigvals(N - diagN))
@@ -182,6 +202,7 @@ def search_counter_eg(n, level, drift, n_iter, n_trail):
 
 
 class CounterExample():
+    """Records the found counter example"""
 
     def __init__(self, A, z, Q, gap, snr):
         self.A = A

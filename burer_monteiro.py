@@ -11,6 +11,8 @@ import aux
 
 
 def augmented_lagrangian(Y, k, plotting=False, printing=True):
+    """Returns the resulting local minimizer R of the BM problem."""
+
     n, _ = Y.shape
     y = np.ones(n).reshape((-1, 1))
     R = np.random.random_sample((n, k))
@@ -47,6 +49,8 @@ def augmented_lagrangian(Y, k, plotting=False, printing=True):
 
 
 def _generate_random_R(n, k):
+    """Returns a random initialization of R."""
+
     R = np.random.uniform(-1, 1, (n, k))
     for i in range(n):
         R[i, :] = R[i, :] / np.linalg.norm(R[i, :])
@@ -54,12 +58,16 @@ def _generate_random_R(n, k):
 
 
 def _basis_vector(size, index):
+    """Returns a basis vector with 1 on certain index."""
+
     vec = np.zeros(size)
     vec[index] = 1
     return vec
 
 
 def _A_trace_vec(n, R):
+    """Returns a vector containing norm square of row vectors of R."""
+
     vec = np.empty(n)
     for i in range(n):
         vec[i] = R[i, :].dot(R[i, :])
@@ -73,19 +81,24 @@ def _constraint_term_vec(n, R):
 
 
 def _augmented_lagrangian_func(Rv, Y, y, penalty, n, k):
+    """Returns the value of objective function of augmented Lagrangian."""
+
     R = _vector_to_matrix(Rv, k)
     vec = _constraint_term_vec(n, R)
     objective = -np.trace(Y.dot(R.dot(R.T))) - y.reshape((1, -1)
-                                                         ).dot(vec) + penalty / 2 * vec.reshape((1, -1)).dot(vec)
+                    ).dot(vec) + penalty / 2 * vec.reshape((1, -1)).dot(vec)
     return objective
 
 
 def _vector_to_matrix(Rv, k):
+    """Returns a matrix from reforming a vector."""
     U = Rv.reshape((-1, k))
     return U
 
 
 def _matrix_to_vector(R):
+    """Returns a vector from flattening a matrix."""
+
     u = R.reshape((1, -1)).ravel()
     return u
 
@@ -95,6 +108,8 @@ def _matrix_to_vector(R):
 
 
 def _jacobian(Rv, Y, n, y, penalty, k):
+    """Returns the Jacobian matrix of the augmented Lagrangian problem."""
+
     R = _vector_to_matrix(Rv, k)
     vec_trace_A = _A_trace_vec(n, R).ravel()
     vec_second_part = R.copy()
@@ -110,6 +125,8 @@ def _jacobian(Rv, Y, n, y, penalty, k):
 
 
 def _plot_R(R):
+    """Plot the found matrices R on their row vectors."""
+
     plt.style.use('ggplot')
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
@@ -119,6 +136,8 @@ def _plot_R(R):
 
 
 def trust_region(A, k, plotting=False):
+    """Returns a Result object containing information of the local minimizer."""
+
     print('Starting trust region on manifold...')
     n, _ = A.shape
     Y = _generate_random_R(n, k)
@@ -127,6 +146,8 @@ def trust_region(A, k, plotting=False):
 
 
 def trust_region_plotting(A, k):
+    """Same as function trust_region, with an extra plotting functionality."""
+
     print('Starting trust region on manifold...')
     n, _ = A.shape
     Y = _generate_random_R(n, k)
@@ -135,26 +156,36 @@ def trust_region_plotting(A, k):
 
 
 def obj_function(A, Yv, n, k):
+    """Returns objective function for the trust region method"""
+
     Y = _vector_to_matrix(Yv, k)
     return -np.trace(A.dot(Y.dot(Y.T)))
 
 
 def _projection(Z, Y):
+    """Returns projected point from tangent plane back to the manifold."""
+
     dia = np.diag(np.diag(Z.dot(Y.T)))
     return Z - dia.dot(Y)
 
 
 def _grad(A, Y):
+    """Returns gradient of the objective function."""
+
     return -A.dot(Y)
 
 
 def _proj_grad_from_vec(A, Yv, n, k):
+    """Returns the projected gradient given point on manifold in vector form."""
+
     Y = _vector_to_matrix(Yv, k)
     proj_grad = _projection(_grad(A, Y), Y)
     return _matrix_to_vector(proj_grad)
 
 
 def _hessian_p(A, Yv, Tv, n, k):
+    """Returns the directional Hessian matrix."""
+
     Y = _vector_to_matrix(Yv, k)
     T = _vector_to_matrix(Tv, k)
     directional_hess = (A - np.diag((A.dot(Y)).dot(Y.T))).dot(T)
@@ -162,6 +193,8 @@ def _hessian_p(A, Yv, Tv, n, k):
 
 
 def _retraction(Tv):
+    """Returns the retracted point given one on the tangent plane."""
+    
     T = _vector_to_matrix(Tv, 2)
     n, _ = T.shape
     for i in range(n):
