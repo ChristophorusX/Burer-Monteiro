@@ -137,13 +137,13 @@ def _plot_R(R):
     plt.show()
 
 
-def trust_region(A, k, plotting=False):
+def trust_region(A, k, plotting=False, printing=False):
     """Returns a Result object containing information of the local minimizer."""
 
     print('Starting trust region on manifold...')
     n, _ = A.shape
     Y = _generate_random_rect(n, k)
-    return minimize_with_trust(lambda Yv: obj_function(A, Yv, n, k), Y, k, plotting, jac=lambda Yv: _proj_grad_from_vec(
+    return minimize_with_trust(lambda Yv: obj_function(A, Yv, n, k), Y, k, plotting, printing, jac=lambda Yv: _proj_grad_from_vec(
         A, Yv, n, k), hessp=lambda Yv, Tv: _hessian_p(A, Yv, Tv, n, k))
 
 
@@ -371,7 +371,7 @@ class BaseQuadraticSubproblem(object):
                                   'the child class')
 
 
-def _minimize_trust_region(fun, x0, n_rows, plotting, args=(), jac=None, hess=None, hessp=None,
+def _minimize_trust_region(fun, x0, n_rows, plotting, printing, args=(), jac=None, hess=None, hessp=None,
                            subproblem=None, initial_trust_radius=1.0,
                            max_trust_radius=1000.0, eta=0.15, gtol=1e-4,
                            maxiter=None, disp=False, return_all=False,
@@ -444,7 +444,8 @@ def _minimize_trust_region(fun, x0, n_rows, plotting, args=(), jac=None, hess=No
 
         # define the local approximation at the proposed point
         # retract the point x from tangent space to the manifold
-        print('Start retracting onto the manifold...')
+        if printing == True:
+            print('Start retracting onto the manifold...')
         x_proposed = _retraction(x + p)
         m_proposed = subproblem(x_proposed, fun, jac, hess, hessp)
 
@@ -466,7 +467,8 @@ def _minimize_trust_region(fun, x0, n_rows, plotting, args=(), jac=None, hess=No
         if rho > eta:
             x = x_proposed
             m = m_proposed
-            print('Proposed step accepted...')
+            if printing == True:
+                print('Proposed step accepted...')
             R = _vector_to_matrix(x, n_rows)
             if plotting == True:
                 _plot_R(R)
@@ -521,9 +523,9 @@ def _minimize_trust_region(fun, x0, n_rows, plotting, args=(), jac=None, hess=No
 """Newton-CG trust-region optimization."""
 
 
-def _minimize_trust_ncg(fun, x0, n_rows, plotting, args=(), jac=None, hess=None, hessp=None,
+def _minimize_trust_ncg(fun, x0, n_rows, plotting, printing, args=(), jac=None, hess=None, hessp=None,
                         **trust_region_options):
-    return _minimize_trust_region(fun, x0, n_rows, plotting, args=args, jac=jac, hess=hess,
+    return _minimize_trust_region(fun, x0, n_rows, plotting, printing, args=args, jac=jac, hess=hess,
                                   hessp=hessp, subproblem=CGSteihaugSubproblem,
                                   **trust_region_options)
 
@@ -616,11 +618,11 @@ class CGSteihaugSubproblem(BaseQuadraticSubproblem):
             d = d_next
 
 
-def minimize_with_trust(fun, x0, n_rows, plotting, args=(), jac=None, hess=None,
+def minimize_with_trust(fun, x0, n_rows, plotting, printing, args=(), jac=None, hess=None,
                         hessp=None, callback=None, options=None):
     if options is None:
         options = {}
-    return _minimize_trust_ncg(fun, x0, n_rows, plotting, args, jac, hess, hessp,
+    return _minimize_trust_ncg(fun, x0, n_rows, plotting, printing, args, jac, hess, hessp,
                                callback=callback, **options)
 
 
