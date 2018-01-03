@@ -95,7 +95,7 @@ def search_counter_eg(n, level, drift, n_iter, n_trail):
                         'Finding global optimizer with BM (trail {})...'.format(j + 1))
                     # Q = bm.augmented_lagrangian(
                     #     A, 2, plotting=False, printing=False)
-                    result = bm.trust_region(A, 2, plotting=False)
+                    result = bm.trust_region(A, 2, plotting=False, printing=False)
                     Q_vec = result.x
                     Q = Q_vec.reshape((n, 2))
                     flag = result.success

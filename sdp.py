@@ -4,8 +4,9 @@ import sync_generator as gen
 import aux
 
 
-def sdp_relaxation(Y, z):
-    print('Solving sdp relaxation problem...')
+def sdp_relaxation(Y, z, printing=False):
+    if printing:
+        print('Solving sdp relaxation problem...')
     n, _ = Y.shape
     X = cvx.Semidef(n)
     A = X * Y
@@ -13,13 +14,14 @@ def sdp_relaxation(Y, z):
     constraints = [cvx.diag(X) == 1]
     problem = cvx.Problem(objective, constraints)
     problem.solve()
-    print('Status: ' + problem.status)
-    print('Optimal value: \n', problem.value)
-    print('Verifying optimality (dual value): \n',
-          np.sum(constraints[0].dual_value))
-    print('Optimal X: \n', X.value)
-    print('Optimal dual D (only diagonal entries): \n',
-          constraints[0].dual_value)
+    if printing:
+        print('Status: ' + problem.status)
+        print('Optimal value: \n', problem.value)
+        print('Verifying optimality (dual value): \n',
+              np.sum(constraints[0].dual_value))
+        print('Optimal X: \n', X.value)
+        print('Optimal dual D (only diagonal entries): \n',
+              constraints[0].dual_value)
     return problem.value, X, constraints[0].dual_value
 
 

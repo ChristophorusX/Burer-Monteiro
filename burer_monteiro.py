@@ -1,14 +1,15 @@
 from __future__ import division, print_function, absolute_import
 import math
 import scipy.linalg
-
+import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import optimize as opt
 import sbm_generator as gensbm
 import sync_generator as gensync
 import aux
-
+from matplotlib import rc
+rc('text', usetex=True)
 
 def augmented_lagrangian(Y, k, plotting=False, printing=True):
     """Returns the resulting local minimizer R of the BM problem."""
