@@ -6,6 +6,11 @@ import aux
 
 
 def spectral_gap_increase(n, percentage, snr, noise_deviation):
+    """Returns the spectral gap increase after the application of monotone
+       adversary. (This version is NOT quite right)
+    """
+
+    # TODO: modify this function, which should only depend on ground truth.
     Y_adv, Y_sync, z = mono.monotone_sync(n, percentage, snr, noise_deviation)
     S_sync = dual_feasibility(Y_sync)
     S_adv = dual_feasibility(Y_adv)
@@ -16,6 +21,10 @@ def spectral_gap_increase(n, percentage, snr, noise_deviation):
 
 
 def dual_feasibility(Y):
+    """Returns the dual gap matrix of local optimizer after solving the problem
+       to see if it is the optimizer of corresponding SDP problem.
+    """
+
     Q = bm.augmented_lagrangian(Y, 2)
     X = Q.dot(Q.T)
     S = np.diag(np.diag(Y.dot(X))) - Y

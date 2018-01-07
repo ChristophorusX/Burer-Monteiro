@@ -1,7 +1,7 @@
 import spectral_gap_analysis as sp
-import burer_monteiro as bm
 import numpy as np
 from matplotlib import pyplot as plt
+import noise_generator as gen
 
 
 def landscape(A, z, max_radius):
@@ -34,7 +34,7 @@ def pred_val(A, ground_truth, point):
     dim = A.shape[0]
     grad = A.dot(ground_truth)
     distance = point - ground_truth
-    return func_val(A, ground_truth) + np.sum(grad * distance) + dim / 2 * np.linalg.norm(distance)**2
+    return func_val(A, ground_truth) + np.sum(grad * distance) - dim / 2 * np.linalg.norm(distance)**2
 
 
 def draw_landscape(info):
@@ -45,11 +45,14 @@ def draw_landscape(info):
     plt.style.use('ggplot')
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
-    plt.scatter(radius_arr, diff_arr, alpha=0.75, label=r'Point $Q\in\mathcal{{{M}}}$ near ground truth')
-    plt.title(r'Local landscape near ground truth\\ compared to ``quadratic" approximation')
+    plt.scatter(radius_arr, diff_arr, alpha=0.5,
+                label=r'Point $Q\in\mathcal{M}$ near ground truth')
+    plt.title(
+        r'Local landscape near ground truth\\ compared to ``quadratic" approximation')
     plt.xlabel(r'Radius $r$ to ground truth')
-    plt.ylabel(r'Difference $\mathrm{{{Tr}}}(AQ) -\mathrm{{{model}}}(Q)$')
-    plt.text(0, -10, r'$\mathrm{{{model}}}(Q)=f(Q(z))+\langle\mathrm{{{grad}}}f(Q(z)),Q-Q(z)\rangle+\frac{{{n}}}{{{2}}}\|Q-Q(z)\|^2$')
+    plt.ylabel(r'Difference $\mathrm{Tr}(AQ) -\mathrm{model}(Q)$')
+    plt.text(
+        0, -8, r'$\mathrm{model}(Q)=f(\bar Q(z))+\langle\mathrm{grad}f(\bar Q(z)),Q-\bar Q(z)\rangle-\frac{n}{2}\|Q-\bar Q(z)\|^2$')
     plt.legend()
     plt.savefig('local landscape.png', dpi=250)
     plt.close('all')
@@ -58,10 +61,28 @@ def draw_landscape(info):
 def get_observation(n, level, noise_type):
     """Obtain an observation and ground truth from certain type of perturbation."""
 
-    if noise_type == 'positive':
+    if noise_type == 'positive-rows':
         z = np.ones(n).reshape((-1, 1))
         ground_truth = z.dot(z.T)
         N = sp._gen_row_mat(n, level)
+        N = N - np.diag(np.diag(N))
+        A = ground_truth + N
+    elif noise_type == 'positive-sparse':
+        z = np.ones(n).reshape((-1, 1))
+        ground_truth = z.dot(z.T)
+        N = sp._gen_sparse_mat(n, level)
+        N = N - np.diag(np.diag(N))
+        A = ground_truth + N
+    elif noise_type == 'positive-uniform':
+        z = np.ones(n).reshape((-1, 1))
+        ground_truth = z.dot(z.T)
+        N = gen.uniform_noise(n, level) + level
+        N = N - np.diag(np.diag(N))
+        A = ground_truth + N
+    elif noise_type == 'uniform':
+        z = np.ones(n).reshape((-1, 1))
+        ground_truth = z.dot(z.T)
+        N = gen.uniform_noise(n, level)
         N = N - np.diag(np.diag(N))
         A = ground_truth + N
     return A, z
@@ -105,7 +126,8 @@ def get_nearby_pt(ground_truth, distance):
 
     dim = ground_truth.shape[0]
     # generate a vector on tangent plane as a direction
-    tangent = np.hstack((ground_truth[:, 1].reshape((-1, 1)), ground_truth[:, 0].reshape((-1, 1))))
+    tangent = np.hstack((ground_truth[:, 1].reshape(
+        (-1, 1)), ground_truth[:, 0].reshape((-1, 1))))
     # create a direction orthogonal to the one above (that gives 0 eigenvalue)
     direction = np.random.random_sample(dim)
     direction = direction - np.mean(direction)
@@ -121,6 +143,6 @@ def get_nearby_pt(ground_truth, distance):
 
 
 if __name__ == '__main__':
-    A, z = get_observation(10, 10, 'positive')
+    A, z = get_observation(10, 10, 'positive-sparse')
     info = landscape(A, z, max_radius=.5)
     draw_landscape(info)
