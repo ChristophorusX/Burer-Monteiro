@@ -23,25 +23,36 @@ def landscape(A, z, max_radius):
 
 
 def func_val(A, point):
+    """Return function value at the point."""
+
     return np.trace((A.dot(point)).dot(point.T))
 
 
 def pred_val(A, ground_truth, point):
+    """Return the predicted upper bound given the strong concavity of the function."""
+
+    dim = A.shape[0]
     grad = A.dot(ground_truth)
     distance = point - ground_truth
-    return func_val(A, ground_truth) + np.sum(grad * distance) + 10 / 2 * np.linalg.norm(distance)
+    return func_val(A, ground_truth) + np.sum(grad * distance) + dim / 2 * np.linalg.norm(distance)**2
 
 
 def draw_landscape(info):
     """Draw the difference against radius."""
-    
+
     diff_arr = info[:, 0]
     radius_arr = info[:, 1]
     plt.style.use('ggplot')
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
-    plt.scatter(radius_arr, diff_arr, alpha=0.75, label='Difference vs Radius')
-    plt.show()
+    plt.scatter(radius_arr, diff_arr, alpha=0.75, label=r'Point $Q\in\mathcal{{{M}}}$ near ground truth')
+    plt.title(r'Local landscape near ground truth\\ compared to ``quadratic" approximation')
+    plt.xlabel(r'Radius $r$ to ground truth')
+    plt.ylabel(r'Difference $\mathrm{{{Tr}}}(AQ) -\mathrm{{{model}}}(Q)$')
+    plt.text(0, -10, r'$\mathrm{{{model}}}(Q)=f(Q(z))+\langle\mathrm{{{grad}}}f(Q(z)),Q-Q(z)\rangle+\frac{{{n}}}{{{2}}}\|Q-Q(z)\|^2$')
+    plt.legend()
+    plt.savefig('local landscape.png', dpi=250)
+    plt.close('all')
 
 
 def get_observation(n, level, noise_type):
@@ -93,14 +104,23 @@ def get_nearby_pt(ground_truth, distance):
     """Get a nearby point of certain distance given the position of ground truth."""
 
     dim = ground_truth.shape[0]
-    addon = bm._projection(np.random.random_sample((dim, 2)), ground_truth)
-    addon = distance * addon / np.linalg.norm(addon)
+    # generate a vector on tangent plane as a direction
+    tangent = np.hstack((ground_truth[:, 1].reshape((-1, 1)), ground_truth[:, 0].reshape((-1, 1))))
+    # create a direction orthogonal to the one above (that gives 0 eigenvalue)
+    direction = np.random.random_sample(dim)
+    direction = direction - np.mean(direction)
+    direction = direction / np.linalg.norm(direction)
+    add_on = np.diag(direction).dot(tangent)
+    # direction times distance requested
+    add_on = distance * add_on
+    point = ground_truth + add_on
+    # project back onto the manifold
     for i in range(dim):
-        addon[i, :] = addon[i, :] / np.linalg.norm(addon[i, :])
-    return ground_truth + addon
+        point[i, :] = point[i, :] / np.linalg.norm(point[i, :])
+    return point
 
 
 if __name__ == '__main__':
     A, z = get_observation(10, 10, 'positive')
-    info = landscape(A, z, max_radius=.05)
+    info = landscape(A, z, max_radius=.5)
     draw_landscape(info)
