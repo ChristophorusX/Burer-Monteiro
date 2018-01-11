@@ -52,7 +52,7 @@ def draw_landscape(info):
     plt.rc('font', family='serif')
     plt.scatter(distance_arr, diff_arr, alpha=0.5,
                 label=r'Point $Q\in\mathcal{M}$ near ground truth (color indicates correlation)',
-                c=corr_arr, cmap=plt.cm.get_cmap('Blues'), vmin=.5, vmax=1)
+                c=corr_arr, cmap=plt.cm.get_cmap('inferno'), vmin=.5, vmax=1)
     plt.title(
         r'Local landscape near ground truth\\ compared to ``quadratic" approximation')
     plt.xlabel(r'Distance $\|zz^T-QQ^T\|_F$ to ground truth')
@@ -150,6 +150,6 @@ def get_nearby_pt(ground_truth, distance):
 
 
 if __name__ == '__main__':
-    A, z = get_observation(100, 100, 'positive-sparse')
-    info = landscape(A, z, max_radius=50)
+    A, z = get_observation(10, 10, 'positive-sparse')
+    info = landscape(A, z, max_radius=5)
     draw_landscape(info)
