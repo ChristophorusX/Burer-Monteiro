@@ -138,14 +138,14 @@ def _plot_R(R):
     plt.show()
 
 
-def trust_region(A, k, plotting=False, printing=False):
+def trust_region(A, k, plotting=False, printing=False, correlation_arr=None, ground_truth=None):
     """Returns a Result object containing information of the local minimizer."""
 
     print('Starting trust region on manifold...')
     n, _ = A.shape
     Y = _generate_random_rect(n, k)
     return minimize_with_trust(lambda Yv: obj_function(A, Yv, n, k), Y, k, plotting, printing, jac=lambda Yv: _proj_grad_from_vec(
-        A, Yv, n, k), hessp=lambda Yv, Tv: _hessian_p(A, Yv, Tv, n, k))
+        A, Yv, n, k), hessp=lambda Yv, Tv: _hessian_p(A, Yv, Tv, n, k), correlation_arr=correlation_arr, ground_truth=ground_truth)
 
 
 def trust_region_plotting(A, k):
@@ -376,7 +376,7 @@ def _minimize_trust_region(fun, x0, n_rows, plotting, printing, args=(), jac=Non
                            subproblem=None, initial_trust_radius=1.0,
                            max_trust_radius=1000.0, eta=0.15, gtol=1e-4,
                            maxiter=None, disp=False, return_all=False,
-                           callback=None, **unknown_options):
+                           callback=None, correlation_arr=None, ground_truth=None, **unknown_options):
     """
     Minimization of scalar function of one or more variables using a
     trust-region algorithm.
@@ -473,6 +473,11 @@ def _minimize_trust_region(fun, x0, n_rows, plotting, printing, args=(), jac=Non
             R = _vector_to_matrix(x, n_rows)
             if plotting == True:
                 _plot_R(R)
+            if correlation_arr is not None:
+                Q = _vector_to_matrix(x, 2)
+                QT = Q.transpose()
+                correlation = np.linalg.norm(QT.dot(ground_truth)) / ground_truth.shape[0]
+                correlation_arr.append(correlation)
 
         # append the best guess, call back, increment the iteration count
         if return_all:
@@ -525,10 +530,11 @@ def _minimize_trust_region(fun, x0, n_rows, plotting, printing, args=(), jac=Non
 
 
 def _minimize_trust_ncg(fun, x0, n_rows, plotting, printing, args=(), jac=None, hess=None, hessp=None,
-                        **trust_region_options):
+                        correlation_arr=None, ground_truth=None, **trust_region_options):
     return _minimize_trust_region(fun, x0, n_rows, plotting, printing, args=args, jac=jac, hess=hess,
                                   hessp=hessp, subproblem=CGSteihaugSubproblem,
-                                  **trust_region_options)
+                                  **trust_region_options, correlation_arr=correlation_arr,
+                                  ground_truth=ground_truth)
 
 
 class CGSteihaugSubproblem(BaseQuadraticSubproblem):
@@ -620,11 +626,12 @@ class CGSteihaugSubproblem(BaseQuadraticSubproblem):
 
 
 def minimize_with_trust(fun, x0, n_rows, plotting, printing, args=(), jac=None, hess=None,
-                        hessp=None, callback=None, options=None):
+                        hessp=None, correlation_arr=None, ground_truth=None, callback=None, options=None):
     if options is None:
         options = {}
     return _minimize_trust_ncg(fun, x0, n_rows, plotting, printing, args, jac, hess, hessp,
-                               callback=callback, **options)
+                               callback=callback, **options, correlation_arr=correlation_arr,
+                               ground_truth=ground_truth)
 
 
 if __name__ == "__main__":

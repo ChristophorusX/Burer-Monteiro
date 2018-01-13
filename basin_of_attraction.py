@@ -5,11 +5,13 @@ import numpy as np
 from matplotlib import pyplot as plt
 import noise_generator as gen
 import sync_generator as sync
+import burer_monteiro as bm
 
 
 def landscape(A, z, max_radius):
-    """Compute differences between function values and prediction values of some
-       random samples on manifold in the certain domain.
+    """
+    Compute differences between function values and prediction values of some
+    random samples on manifold in the certain domain.
     """
 
     info = []
@@ -25,6 +27,25 @@ def landscape(A, z, max_radius):
         correlation = np.linalg.norm(z.ravel().dot(pt)) / dim
         info.append([diff, distance, correlation])
     return np.array(info)
+
+
+def correlation_landscape(A, z, loops):
+    """
+    Compute the trajectory of correlations of the points on manifold along the
+    descendence of trust region algorithm.
+    """
+
+    correlation_arr_array = []
+    for i in range(loops):
+        correlation_arr = []
+        result = bm.trust_region(A, 2, plotting=False, printing=False, correlation_arr=correlation_arr, ground_truth=z)
+        Q = bm._vector_to_matrix(result.x, 2)
+        QT = Q.transpose()
+        correlation = np.linalg.norm(QT.dot(z)) / z.shape[0]
+        if correlation > .95:
+            correlation_arr = np.array(correlation_arr)
+            correlation_arr_array.append(correlation_arr)
+    return correlation_arr_array
 
 
 def func_val(A, point):
@@ -43,7 +64,7 @@ def pred_val(A, ground_truth, point):
 
 
 def draw_landscape(info):
-    """Draw the difference against radius."""
+    """Draw the difference against distance."""
 
     diff_arr = info[:, 0]
     distance_arr = info[:, 1]
@@ -62,6 +83,21 @@ def draw_landscape(info):
     #     0, -8, r'$\mathrm{model}(Q)=f(\bar Q(z))+\langle\mathrm{grad}f(\bar Q(z)),Q-\bar Q(z)\rangle-\frac{n}{2}\|Q-\bar Q(z)\|^2$')
     plt.legend()
     plt.savefig('local landscape.png', dpi=250)
+    plt.close('all')
+
+
+def draw_correlation_landscape(correlation_arr_array):
+    """Draw the trajectories of correlation change with different initializations."""
+
+    plt.style.use('ggplot')
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif')
+    for arr in correlation_arr_array:
+        plt.plot(range(arr.shape[0]), arr, alpha=.5)
+    plt.title('Correlation Trajectories under Trust Region')
+    plt.xlabel(r'Number of iterations $k$')
+    plt.ylabel(r'Correlation $\|Q^Tz\|_2/n$')
+    plt.savefig('correlation trajectories.png', dpi=250)
     plt.close('all')
 
 
@@ -155,6 +191,8 @@ def get_nearby_pt(ground_truth, distance):
 
 
 if __name__ == '__main__':
-    A, z = get_observation(1000, 16, 'sync')
-    info = landscape(A, z, max_radius=500)
-    draw_landscape(info)
+    A, z = get_observation(200, 10, 'positive-sparse')
+    # info = landscape(A, z, max_radius=500)
+    # draw_landscape(info)
+    correlation_arr_array = correlation_landscape(A, z, 200)
+    draw_correlation_landscape(correlation_arr_array)
