@@ -4,6 +4,7 @@ import spectral_gap_analysis as sp
 import numpy as np
 from matplotlib import pyplot as plt
 import noise_generator as gen
+import sync_generator as sync
 
 
 def landscape(A, z, max_radius):
@@ -91,6 +92,10 @@ def get_observation(n, level, noise_type):
         N = gen.uniform_noise(n, level)
         N = N - np.diag(np.diag(N))
         A = ground_truth + N
+    elif noise_type == 'sync':
+        snr = level
+        A, z = sync.synchronization_usual(n, .5, snr)
+
     return A, z
 
 
@@ -150,6 +155,6 @@ def get_nearby_pt(ground_truth, distance):
 
 
 if __name__ == '__main__':
-    A, z = get_observation(10, 10, 'positive-sparse')
-    info = landscape(A, z, max_radius=5)
+    A, z = get_observation(1000, 16, 'sync')
+    info = landscape(A, z, max_radius=500)
     draw_landscape(info)
