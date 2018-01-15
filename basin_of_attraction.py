@@ -39,12 +39,12 @@ def correlation_landscape(A, z, loops):
     for i in range(loops):
         correlation_arr = []
         result = bm.trust_region(A, 2, plotting=False, printing=False, correlation_arr=correlation_arr, ground_truth=z)
-        Q = bm._vector_to_matrix(result.x, 2)
-        QT = Q.transpose()
-        correlation = np.linalg.norm(QT.dot(z)) / z.shape[0]
-        if correlation > .95:
-            correlation_arr = np.array(correlation_arr)
-            correlation_arr_array.append(correlation_arr)
+        # Q = bm._vector_to_matrix(result.x, 2)
+        # QT = Q.transpose()
+        # correlation = np.linalg.norm(QT.dot(z)) / z.shape[0]
+        # if correlation > .95:
+        correlation_arr = np.array(correlation_arr)
+        correlation_arr_array.append(correlation_arr)
     return correlation_arr_array
 
 
@@ -191,7 +191,7 @@ def get_nearby_pt(ground_truth, distance):
 
 
 if __name__ == '__main__':
-    A, z = get_observation(200, 6, 'sync')
+    A, z = get_observation(200, 2, 'sync')
 
     # # Draw landscape near the ground truth
     # info = landscape(A, z, max_radius=500)
