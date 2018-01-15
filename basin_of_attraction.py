@@ -191,8 +191,12 @@ def get_nearby_pt(ground_truth, distance):
 
 
 if __name__ == '__main__':
-    A, z = get_observation(200, 10, 'positive-sparse')
+    A, z = get_observation(200, 6, 'sync')
+
+    # # Draw landscape near the ground truth
     # info = landscape(A, z, max_radius=500)
     # draw_landscape(info)
+
+    # Draw traajectories of correlation descendence with different initializations
     correlation_arr_array = correlation_landscape(A, z, 200)
     draw_correlation_landscape(correlation_arr_array)
