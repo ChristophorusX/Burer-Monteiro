@@ -11,6 +11,7 @@ import aux
 from matplotlib import rc
 rc('text', usetex=True)
 
+
 def augmented_lagrangian(Y, k, plotting=False, printing=True):
     """Returns the resulting local minimizer R of the BM problem."""
 
@@ -89,7 +90,7 @@ def _augmented_lagrangian_func(Rv, Y, y, penalty, n, k):
     R = _vector_to_matrix(Rv, k)
     vec = _constraint_term_vec(n, R)
     objective = -np.trace(Y.dot(R.dot(R.T))) - y.reshape((1, -1)
-                    ).dot(vec) + penalty / 2 * vec.reshape((1, -1)).dot(vec)
+                                                         ).dot(vec) + penalty / 2 * vec.reshape((1, -1)).dot(vec)
     return objective
 
 
@@ -138,14 +139,14 @@ def _plot_R(R):
     plt.show()
 
 
-def trust_region(A, k, plotting=False, printing=False, correlation_arr=None, ground_truth=None):
+def trust_region(A, k, plotting=False, printing=False, correlation_arr=None, curvature_arr=None, ground_truth=None, observation=None):
     """Returns a Result object containing information of the local minimizer."""
 
     print('Starting trust region on manifold...')
     n, _ = A.shape
     Y = _generate_random_rect(n, k)
     return minimize_with_trust(lambda Yv: obj_function(A, Yv, n, k), Y, k, plotting, printing, jac=lambda Yv: _proj_grad_from_vec(
-        A, Yv, n, k), hessp=lambda Yv, Tv: _hessian_p(A, Yv, Tv, n, k), correlation_arr=correlation_arr, ground_truth=ground_truth)
+        A, Yv, n, k), hessp=lambda Yv, Tv: _hessian_p(A, Yv, Tv, n, k), correlation_arr=correlation_arr, curvature_arr=curvature_arr, ground_truth=ground_truth, observation=observation)
 
 
 def trust_region_plotting(A, k):
@@ -376,7 +377,7 @@ def _minimize_trust_region(fun, x0, n_rows, plotting, printing, args=(), jac=Non
                            subproblem=None, initial_trust_radius=1.0,
                            max_trust_radius=1000.0, eta=0.15, gtol=1e-4,
                            maxiter=None, disp=False, return_all=False,
-                           callback=None, correlation_arr=None, ground_truth=None, **unknown_options):
+                           callback=None, correlation_arr=None, curvature_arr=None, ground_truth=None, observation=None, **unknown_options):
     """
     Minimization of scalar function of one or more variables using a
     trust-region algorithm.
@@ -476,8 +477,17 @@ def _minimize_trust_region(fun, x0, n_rows, plotting, printing, args=(), jac=Non
             if correlation_arr is not None:
                 Q = _vector_to_matrix(x, 2)
                 QT = Q.transpose()
-                correlation = np.linalg.norm(QT.dot(ground_truth)) / ground_truth.shape[0]
+                correlation = np.linalg.norm(
+                    QT.dot(ground_truth)) / ground_truth.shape[0]
                 correlation_arr.append(correlation)
+            if curvature_arr is not None:
+                Q = _vector_to_matrix(x, 2)
+                hessian = aux.hess_equiv(observation, Q)
+                curv_arr = aux.sorted_eigenvalues(hessian).ravel()
+                curv = curv_arr[0]
+                if curv > - 10 ** (-6):
+                    curv = curv_arr[1]
+                curvature_arr.append(curv)
 
         # append the best guess, call back, increment the iteration count
         if return_all:
@@ -530,11 +540,11 @@ def _minimize_trust_region(fun, x0, n_rows, plotting, printing, args=(), jac=Non
 
 
 def _minimize_trust_ncg(fun, x0, n_rows, plotting, printing, args=(), jac=None, hess=None, hessp=None,
-                        correlation_arr=None, ground_truth=None, **trust_region_options):
+                        correlation_arr=None, curvature_arr=None, ground_truth=None, observation=None, **trust_region_options):
     return _minimize_trust_region(fun, x0, n_rows, plotting, printing, args=args, jac=jac, hess=hess,
                                   hessp=hessp, subproblem=CGSteihaugSubproblem,
-                                  **trust_region_options, correlation_arr=correlation_arr,
-                                  ground_truth=ground_truth)
+                                  **trust_region_options, correlation_arr=correlation_arr, curvature_arr=curvature_arr,
+                                  ground_truth=ground_truth, observation=observation)
 
 
 class CGSteihaugSubproblem(BaseQuadraticSubproblem):
@@ -626,12 +636,12 @@ class CGSteihaugSubproblem(BaseQuadraticSubproblem):
 
 
 def minimize_with_trust(fun, x0, n_rows, plotting, printing, args=(), jac=None, hess=None,
-                        hessp=None, correlation_arr=None, ground_truth=None, callback=None, options=None):
+                        hessp=None, correlation_arr=None, curvature_arr=None, ground_truth=None, observation=None, callback=None, options=None):
     if options is None:
         options = {}
     return _minimize_trust_ncg(fun, x0, n_rows, plotting, printing, args, jac, hess, hessp,
-                               callback=callback, **options, correlation_arr=correlation_arr,
-                               ground_truth=ground_truth)
+                               callback=callback, **options, correlation_arr=correlation_arr, curvature_arr=curvature_arr,
+                               ground_truth=ground_truth, observation=observation)
 
 
 if __name__ == "__main__":

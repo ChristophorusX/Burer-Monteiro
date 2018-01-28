@@ -87,6 +87,14 @@ def error_rate(labels, true_labels):
     return min(rate1, rate2)
 
 
+def hess_equiv(A, Q):
+    """Return the equivalent Hessian when dealing with rank 2 problems."""
+
+    first = np.diag(np.diag((A.dot(Q)).dot(Q.T)))
+    second = A * (Q.dot(Q.T))
+    return first - second
+
+
 if __name__ == "__main__":
     Y = np.diag([1, 1, 3, 4]) + [[2, 5, 3, 5],
                                  [4, 5, 1, 2], [4, 5, 1, 2], [4, 5, 1, 2]]

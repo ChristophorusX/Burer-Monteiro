@@ -29,7 +29,7 @@ def landscape(A, z, max_radius):
     return np.array(info)
 
 
-def correlation_landscape(A, z, loops):
+def correlation_landscape(A, z, loops, cutoff=None, correlation_cutoff=None):
     """
     Compute the trajectory of correlations of the points on manifold along the
     descendence of trust region algorithm.
@@ -39,13 +39,34 @@ def correlation_landscape(A, z, loops):
     for i in range(loops):
         correlation_arr = []
         result = bm.trust_region(A, 2, plotting=False, printing=False, correlation_arr=correlation_arr, ground_truth=z)
-        # Q = bm._vector_to_matrix(result.x, 2)
-        # QT = Q.transpose()
-        # correlation = np.linalg.norm(QT.dot(z)) / z.shape[0]
-        # if correlation > .95:
-        correlation_arr = np.array(correlation_arr)
+        if correlation_cutoff is not None:
+            Q = bm._vector_to_matrix(result.x, 2)
+            QT = Q.transpose()
+            correlation = np.linalg.norm(QT.dot(z)) / z.shape[0]
+            if correlation > correlation_cutoff:
+                correlation_arr = np.array(correlation_arr)
+        else:
+            correlation_arr = np.array(correlation_arr)
+        if cutoff is not None and correlation_arr.shape[0] > cutoff:
+            correlation_arr = correlation_arr[:cutoff]
         correlation_arr_array.append(correlation_arr)
     return correlation_arr_array
+
+
+def curvature_landscape(A, z, loops):
+    """
+    Compute the smallest curvature at each step of trust region algorithm.
+    """
+
+    curvature_arr_array = []
+    for i in range(loops):
+        curvature_arr = []
+        bm.trust_region(A, 2, plotting=False, printing=False,
+                                 correlation_arr=None, ground_truth=z,
+                                 curvature_arr=curvature_arr, observation=A)
+        curvature_arr = np.array(curvature_arr)
+        curvature_arr_array.append(curvature_arr)
+    return curvature_arr_array
 
 
 def func_val(A, point):
@@ -76,7 +97,7 @@ def draw_landscape(info):
                 label=r'Point $Q\in\mathcal{M}$ near ground truth (color indicates correlation)',
                 c=corr_arr, cmap=plt.cm.get_cmap('inferno'), vmin=.5, vmax=1)
     plt.title(
-        r'Local landscape near ground truth\\ compared to ``quadratic" approximation')
+        r'Local landscape near ground truth' '\n' r'compared to ``quadratic" approximation')
     plt.xlabel(r'Distance $\|zz^T-QQ^T\|_F$ to ground truth')
     plt.ylabel(r'Difference $\mathrm{Tr}(AQ) -\mathrm{model}(Q)$')
     # plt.text(
@@ -93,11 +114,26 @@ def draw_correlation_landscape(correlation_arr_array):
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
     for arr in correlation_arr_array:
-        plt.plot(range(arr.shape[0]), arr, alpha=.5)
-    plt.title('Correlation Trajectories under Trust Region')
+        plt.plot(range(arr.shape[0]), arr, alpha=.7)
+    plt.title(r'Correlation Trajectories under Trust Region' '\n' r'with Random Initializations')
     plt.xlabel(r'Number of iterations $k$')
     plt.ylabel(r'Correlation $\|Q^Tz\|_2/n$')
     plt.savefig('correlation trajectories.png', dpi=250)
+    plt.close('all')
+
+
+def draw_curvature_landscape(curvature_arr_array):
+    """Draw the curvature on every step of trust region algorithm."""
+
+    plt.style.use('ggplot')
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif')
+    for arr in curvature_arr_array:
+        plt.plot(range(arr.shape[0]), arr, alpha=.7)
+    plt.title(r'Trajectories of smallest curvature' '\n' r'under Trust Region with Random Initializations')
+    plt.xlabel(r'Number of iterations $k$')
+    plt.ylabel(r'Smallest Eigenvalue of Hessian')
+    plt.savefig('curvature trajectories.png', dpi=250)
     plt.close('all')
 
 
@@ -191,12 +227,26 @@ def get_nearby_pt(ground_truth, distance):
 
 
 if __name__ == '__main__':
-    A, z = get_observation(200, 2, 'sync')
+    A, z = get_observation(10, 1, 'sync')
 
     # # Draw landscape near the ground truth
     # info = landscape(A, z, max_radius=500)
     # draw_landscape(info)
 
-    # Draw traajectories of correlation descendence with different initializations
-    correlation_arr_array = correlation_landscape(A, z, 200)
-    draw_correlation_landscape(correlation_arr_array)
+    # # Draw trajectories of correlation descendence with different initializations
+    # # First to make sure that the spectral gap is greater than 0 (the ground truth
+    # # is the global optimum)
+    # if sp._check_spectral_gap(A, z):
+    #     correlation_arr_array = correlation_landscape(A, z, 200, cutoff=40)
+    #     draw_correlation_landscape(correlation_arr_array)
+    # else:
+    #     print('Spectral gap not greater than 0, try another one.')
+
+    # Draw smallest curvatures along the steps of trust region
+    if sp._check_spectral_gap(A, z):
+        curvature_arr_array = curvature_landscape(A, z, 200)
+        draw_curvature_landscape(curvature_arr_array)
+    else:
+        curvature_arr_array = curvature_landscape(A, z, 200)
+        draw_curvature_landscape(curvature_arr_array)
+        print('Spectral gap not greater than 0, try another one.')
