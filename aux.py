@@ -88,11 +88,17 @@ def error_rate(labels, true_labels):
 
 
 def hess_equiv(A, Q):
-    """Return the equivalent Hessian when dealing with rank 2 problems."""
+    """Returns the equivalent Hessian when dealing with rank 2 problems."""
 
     first = np.diag(np.diag((A.dot(Q)).dot(Q.T)))
     second = A * (Q.dot(Q.T))
     return first - second
+
+
+def frobenius_distance(A, B):
+    """Returns the Frobenius norm between two matrices."""
+    return np.linalg.norm(A - B)
+
 
 
 if __name__ == "__main__":

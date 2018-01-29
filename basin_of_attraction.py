@@ -10,7 +10,7 @@ import burer_monteiro as bm
 
 def landscape(A, z, max_radius):
     """
-    Compute differences between function values and prediction values of some
+    Computes differences between function values and prediction values of some
     random samples on manifold in the certain domain.
     """
 
@@ -31,7 +31,7 @@ def landscape(A, z, max_radius):
 
 def correlation_landscape(A, z, loops, cutoff=None, correlation_cutoff=None):
     """
-    Compute the trajectory of correlations of the points on manifold along the
+    Computes the trajectory of correlations of the points on manifold along the
     descendence of trust region algorithm.
     """
 
@@ -55,7 +55,7 @@ def correlation_landscape(A, z, loops, cutoff=None, correlation_cutoff=None):
 
 def curvature_landscape(A, z, loops):
     """
-    Compute the smallest curvature at each step of trust region algorithm.
+    Computes the smallest curvature at each step of trust region algorithm.
     """
 
     curvature_arr_array = []
@@ -70,13 +70,13 @@ def curvature_landscape(A, z, loops):
 
 
 def func_val(A, point):
-    """Return function value at the point."""
+    """Returns function value at the point."""
 
     return np.trace((A.dot(point)).dot(point.T))
 
 
 def pred_val(A, ground_truth, point):
-    """Return the predicted upper bound given the strong concavity of the function."""
+    """Returns the predicted upper bound given the strong concavity of the function."""
 
     dim = A.shape[0]
     grad = A.dot(ground_truth)
@@ -85,7 +85,7 @@ def pred_val(A, ground_truth, point):
 
 
 def draw_landscape(info):
-    """Draw the difference against distance."""
+    """Draws the difference against distance."""
 
     diff_arr = info[:, 0]
     distance_arr = info[:, 1]
@@ -108,7 +108,7 @@ def draw_landscape(info):
 
 
 def draw_correlation_landscape(correlation_arr_array):
-    """Draw the trajectories of correlation change with different initializations."""
+    """Draws the trajectories of correlation change with different initializations."""
 
     plt.style.use('ggplot')
     plt.rc('text', usetex=True)
@@ -123,7 +123,7 @@ def draw_correlation_landscape(correlation_arr_array):
 
 
 def draw_curvature_landscape(curvature_arr_array):
-    """Draw the curvature on every step of trust region algorithm."""
+    """Draws the curvature on every step of trust region algorithm."""
 
     plt.style.use('ggplot')
     plt.rc('text', usetex=True)
@@ -138,7 +138,7 @@ def draw_curvature_landscape(curvature_arr_array):
 
 
 def get_observation(n, level, noise_type):
-    """Obtain an observation and ground truth from certain type of perturbation."""
+    """Obtains an observation and ground truth from certain type of perturbation."""
 
     if noise_type == 'positive-rows':
         z = np.ones(n).reshape((-1, 1))
@@ -172,7 +172,7 @@ def get_observation(n, level, noise_type):
 
 
 def get_ground_truth(z):
-    """Get a corresponding matrix on the manifold from given ground truth."""
+    """Gets a corresponding matrix on the manifold from given ground truth."""
 
     dim = z.ravel().shape[0]
     z = z.reshape((-1, 1))
@@ -183,7 +183,7 @@ def get_ground_truth(z):
 
 
 def _gen_orthogonal(dim=2):
-    """Generate an orthogonal matrix of a certain dimension."""
+    """Generates an orthogonal matrix of a certain dimension."""
 
     random_state = np.random
     H = np.eye(dim)
@@ -205,7 +205,7 @@ def _gen_orthogonal(dim=2):
 
 
 def get_nearby_pt(ground_truth, distance):
-    """Get a nearby point of certain distance given the position of ground truth."""
+    """Gets a nearby point of certain distance given the position of ground truth."""
 
     dim = ground_truth.shape[0]
     # generate a vector on tangent plane as a direction

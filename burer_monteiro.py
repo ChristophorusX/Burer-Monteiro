@@ -2,6 +2,7 @@ from __future__ import division, print_function, absolute_import
 import math
 import scipy.linalg
 import matplotlib
+matplotlib.use('Agg')
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import optimize as opt
@@ -448,7 +449,10 @@ def _minimize_trust_region(fun, x0, n_rows, plotting, printing, args=(), jac=Non
         # retract the point x from tangent space to the manifold
         if printing == True:
             print('Start retracting onto the manifold...')
-        x_proposed = _retraction(x + p)
+        if n_rows is not 1:
+            x_proposed = _retraction(x + p)
+        else:
+            x_proposed = x + p
         m_proposed = subproblem(x_proposed, fun, jac, hess, hessp)
 
         # evaluate the ratio defined in equation (4.4)
@@ -521,7 +525,10 @@ def _minimize_trust_region(fun, x0, n_rows, plotting, printing, args=(), jac=Non
     print("         Iterations: %d" % k)
     print("         Function evaluations: %d" % nfun[0])
     print("         Gradient evaluations: %d" % njac[0])
-    print("         Hessian evaluations: %d" % nhessp[0])
+    if hessp is not None:
+        print("         Hessian evaluations: %d" % nhessp[0])
+    else:
+        print("         Hessian evaluations: %d" % nhess[0])
 
     result = Result(x=x, success=(warnflag == 0), status=warnflag, fun=m.fun,
                     jac=m.jac, nfev=nfun[0], njev=njac[0], nhev=nhessp[0],

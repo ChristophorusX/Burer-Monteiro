@@ -4,7 +4,7 @@ import aux
 
 
 def _stochastic_block_model(n, p, q):
-    """Generate a SBM observation with inner and inter cluster probability."""
+    """Generates a SBM observation with inner and inter cluster probability."""
 
     z_sbm = np.hstack(
         (np.ones(int(n / 2)), -np.ones(int(n / 2)))).reshape(n, 1)
@@ -41,7 +41,7 @@ def sbm_logarithm(n, a, b):
 
 def sbm_linear(n, a, b):
     """Returns an observation with linear regime."""
-    
+
     p = a / n
     q = b / n
     Y, z_sbm = _stochastic_block_model(n, p, q)
