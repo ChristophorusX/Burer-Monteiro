@@ -130,9 +130,10 @@ def draw_curvature_landscape(curvature_arr_array):
     plt.rc('font', family='serif')
     for arr in curvature_arr_array:
         plt.plot(range(arr.shape[0]), arr, alpha=.7)
-    plt.title(r'Trajectories of smallest curvature' '\n' r'under Trust Region with Random Initializations')
-    plt.xlabel(r'Number of iterations $k$')
-    plt.ylabel(r'Smallest Eigenvalue of Hessian')
+    plt.title(r'Trajectories of smallest non-zero curvature'
+             '\n' r'under Trust Region with Random Initializations')
+    plt.xlabel(r'Number of Iterations $k$')
+    plt.ylabel(r'Smallest Eigenvalue of Hessian $\neq 0$')
     plt.savefig('curvature trajectories.png', dpi=250)
     plt.close('all')
 
@@ -227,7 +228,7 @@ def get_nearby_pt(ground_truth, distance):
 
 
 if __name__ == '__main__':
-    A, z = get_observation(10, 1, 'sync')
+    A, z = get_observation(10, 1, 'positive-rows')
 
     # # Draw landscape near the ground truth
     # info = landscape(A, z, max_radius=500)
