@@ -6,8 +6,9 @@ import aux
 
 
 def spectral_gap_increase(n, percentage, snr, noise_deviation):
-    """Returns the spectral gap increase after the application of monotone
-       adversary. (This version is NOT quite right)
+    """
+    Returns the spectral gap increase after the application of monotone
+    adversary. (This version is NOT quite right)
     """
 
     # TODO: modify this function, which should only depend on ground truth.
@@ -21,8 +22,9 @@ def spectral_gap_increase(n, percentage, snr, noise_deviation):
 
 
 def dual_feasibility(Y):
-    """Returns the dual gap matrix of local optimizer after solving the problem
-       to see if it is the optimizer of corresponding SDP problem.
+    """
+    Returns the dual gap matrix of local optimizer after solving the problem
+    to see if it is the optimizer of corresponding SDP problem.
     """
 
     Q = bm.augmented_lagrangian(Y, 2)

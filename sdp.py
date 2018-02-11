@@ -5,8 +5,10 @@ import aux
 
 
 def sdp_relaxation(Y, z, printing=False):
-    """SDP solver of the observation Y and ground truth z."""
-    
+    """
+	SDP solver of the observation Y and ground truth z.
+	"""
+
     if printing:
         print('Solving sdp relaxation problem...')
     n, _ = Y.shape

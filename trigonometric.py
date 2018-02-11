@@ -6,7 +6,9 @@ from scipy import optimize as opt
 
 
 def trig_objective_function(A, theta):
-    """Returns the function value in trigonometric parameterization."""
+    """
+	Returns the function value in trigonometric parameterization.
+	"""
 
     dim, _ = A.shape
     T = np.empty((dim, dim))
@@ -17,7 +19,9 @@ def trig_objective_function(A, theta):
 
 
 def trig_grad(A, theta):
-    """Returns the function gradient in trigonometric parameterization."""
+    """
+	Returns the function gradient in trigonometric parameterization.
+	"""
 
     dim, _ = A.shape
     T = np.empty((dim, dim))
@@ -30,7 +34,9 @@ def trig_grad(A, theta):
 
 
 def trig_hess(A, theta):
-    """Returns the function Hessian in trigonometric parameterization."""
+    """
+	Returns the function Hessian in trigonometric parameterization.
+	"""
 
     dim, _ = A.shape
     T = np.empty((dim, dim))
@@ -52,7 +58,9 @@ def trig_hessp(A, theta, p):
 
 
 def recover_solution(theta):
-    """Recovers triangular matrix Q from trigonometric parameterization."""
+    """
+	Recovers triangular matrix Q from trigonometric parameterization.
+	"""
 
     Q = np.hstack((np.cos(theta).reshape((-1, 1)),
                    np.sin(theta).reshape((-1, 1))))

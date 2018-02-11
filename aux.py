@@ -2,9 +2,10 @@ import numpy as np
 
 
 def rounding_with_prob(vec, p):
-    """Rounds a vector to 0 and 1 according to the value of its entries,
-       with threshold p. If vec is a vector uniformly generated from 0 and 1
-       then p indicates the probility of being 1.
+    """
+    Rounds a vector to 0 and 1 according to the value of its entries,
+    with threshold p. If vec is a vector uniformly generated from 0 and 1
+    then p indicates the probility of being 1.
     """
 
     for index in range(vec.size):
@@ -13,7 +14,9 @@ def rounding_with_prob(vec, p):
 
 
 def demean(A, p, q):
-    """Demeans a SBM observation by generating probability."""
+    """
+	Demeans a SBM observation by generating probability.
+	"""
 
     n, _ = A.shape
     one_vector = create_one_vector(n)
@@ -23,7 +26,9 @@ def demean(A, p, q):
 
 
 def demean_adversary(V):
-    """Demeans an observation for every row according to its mean."""
+    """
+	Demeans an observation for every row according to its mean.
+	"""
 
     n, _ = V.shape
     col_sum = np.sum(V, axis=1).reshape(-1, 1)
@@ -34,14 +39,17 @@ def demean_adversary(V):
 
 
 def create_one_vector(n):
-    """Generates a column vector of 1."""
+    """
+	Generates a column vector of 1.
+	"""
 
     return np.ones(n).reshape((-1, 1))
 
 
 def laplacian_eigs(Y, z):
-    """Returns the eigenvalues of the Laplacian like form of Y as a column
-       vector from small to large.
+    """
+    Returns the eigenvalues of the Laplacian like form of Y as a column
+    vector from small to large.
     """
 
     compo = (np.diag(z.ravel()).dot(Y)).dot(np.diag(z.ravel()))
@@ -55,7 +63,9 @@ def laplacian_eigs(Y, z):
 
 
 def laplacian(Y):
-    """Returns a Laplacian like matrix by using the trivial summation of rows."""
+    """
+	Returns a Laplacian like matrix by using the trivial summation of rows.
+	"""
 
     D = np.diag(np.sum(Y, axis=1))
     L = D - Y
@@ -63,7 +73,9 @@ def laplacian(Y):
 
 
 def normalize(vec):
-    """Normalizes a vector."""
+    """
+	Normalizes a vector.
+	"""
 
     norm = np.linalg.norm(vec)
     if norm == 0:
@@ -72,13 +84,17 @@ def normalize(vec):
 
 
 def sorted_eigenvalues(S):
-    """Returns sorted eigenvalues of matrix S from small to large as a column vector."""
+    """
+	Returns sorted eigenvalues of matrix S from small to large as a column vector.
+	"""
 
     return np.sort(np.linalg.eigvals(S)).reshape((-1, 1))
 
 
 def error_rate(labels, true_labels):
-    """Returns the error rate of the guess compared to true labels up to global flip."""
+    """
+	Returns the error rate of the guess compared to true labels up to global flip.
+	"""
 
     diff1 = labels - true_labels
     diff2 = labels + true_labels
@@ -88,7 +104,9 @@ def error_rate(labels, true_labels):
 
 
 def hess_equiv(A, Q):
-    """Returns the equivalent Hessian when dealing with rank 2 problems."""
+    """
+	Returns the equivalent Hessian when dealing with rank 2 problems.
+	"""
 
     first = np.diag(np.diag((A.dot(Q)).dot(Q.T)))
     second = A * (Q.dot(Q.T))
@@ -96,7 +114,9 @@ def hess_equiv(A, Q):
 
 
 def frobenius_distance(A, B):
-    """Returns the Frobenius norm between two matrices."""
+    """
+	Returns the Frobenius norm between two matrices.
+	"""
     return np.linalg.norm(A - B)
 
 

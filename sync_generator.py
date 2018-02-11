@@ -4,7 +4,9 @@ import aux
 
 
 def _synchronization(n, percentage, snr):
-    """Returns an observation for synchronization with certain SNR."""
+    """
+	Returns an observation for synchronization with certain SNR.
+	"""
 
     z = aux.rounding_with_prob(np.random.random_sample(n), percentage)
     z = 2 * z.reshape(n, 1) - 1
@@ -18,8 +20,10 @@ def _synchronization(n, percentage, snr):
 
 
 def synchronization_normalized(n, percentage, snr):
-    """Returns a normalized observation for synchronization."""
-    
+    """
+	Returns a normalized observation for synchronization.
+	"""
+
     Y, z = _synchronization(n, percentage, snr)
     Y_normalized = snr / n * Y
     print('Observed Z2 synchronization matrix (normalized) is generated!')
@@ -27,7 +31,9 @@ def synchronization_normalized(n, percentage, snr):
 
 
 def synchronization_usual(n, percentage, snr):
-    """Returns an observation for synchronization."""
+    """
+	Returns an observation for synchronization.
+	"""
 
     print('Observed Z2 synchronization matrix (usual) is generated!')
     return _synchronization(n, percentage, snr)

@@ -70,13 +70,17 @@ def curvature_landscape(A, z, loops):
 
 
 def func_val(A, point):
-    """Returns function value at the point."""
+    """
+	Returns function value at the point.
+	"""
 
     return np.trace((A.dot(point)).dot(point.T))
 
 
 def pred_val(A, ground_truth, point):
-    """Returns the predicted upper bound given the strong concavity of the function."""
+    """
+	Returns the predicted upper bound given the strong concavity of the function.
+	"""
 
     dim = A.shape[0]
     grad = A.dot(ground_truth)
@@ -85,7 +89,9 @@ def pred_val(A, ground_truth, point):
 
 
 def draw_landscape(info):
-    """Draws the difference against distance."""
+    """
+	Draws the difference against distance.
+	"""
 
     diff_arr = info[:, 0]
     distance_arr = info[:, 1]
@@ -108,7 +114,9 @@ def draw_landscape(info):
 
 
 def draw_correlation_landscape(correlation_arr_array):
-    """Draws the trajectories of correlation change with different initializations."""
+    """
+	Draws the trajectories of correlation change with different initializations.
+	"""
 
     plt.style.use('ggplot')
     plt.rc('text', usetex=True)
@@ -123,7 +131,9 @@ def draw_correlation_landscape(correlation_arr_array):
 
 
 def draw_curvature_landscape(curvature_arr_array):
-    """Draws the curvature on every step of trust region algorithm."""
+    """
+	Draws the curvature on every step of trust region algorithm.
+	"""
 
     plt.style.use('ggplot')
     plt.rc('text', usetex=True)
@@ -139,7 +149,9 @@ def draw_curvature_landscape(curvature_arr_array):
 
 
 def get_observation(n, level, noise_type):
-    """Obtains an observation and ground truth from certain type of perturbation."""
+    """
+	Obtains an observation and ground truth from certain type of perturbation.
+	"""
 
     if noise_type == 'positive-rows':
         z = np.ones(n).reshape((-1, 1))
@@ -173,7 +185,9 @@ def get_observation(n, level, noise_type):
 
 
 def get_ground_truth(z):
-    """Gets a corresponding matrix on the manifold from given ground truth."""
+    """
+	Gets a corresponding matrix on the manifold from given ground truth.
+	"""
 
     dim = z.ravel().shape[0]
     z = z.reshape((-1, 1))
@@ -184,7 +198,9 @@ def get_ground_truth(z):
 
 
 def _gen_orthogonal(dim=2):
-    """Generates an orthogonal matrix of a certain dimension."""
+    """
+	Generates an orthogonal matrix of a certain dimension.
+	"""
 
     random_state = np.random
     H = np.eye(dim)
@@ -206,7 +222,9 @@ def _gen_orthogonal(dim=2):
 
 
 def get_nearby_pt(ground_truth, distance):
-    """Gets a nearby point of certain distance given the position of ground truth."""
+    """
+	Gets a nearby point of certain distance given the position of ground truth.
+	"""
 
     dim = ground_truth.shape[0]
     # generate a vector on tangent plane as a direction

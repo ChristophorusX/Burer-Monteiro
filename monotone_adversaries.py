@@ -5,8 +5,9 @@ import sync_generator as gen
 
 
 def monotone_random(Y, delta):
-    """Returns an observation after application of a random monotone adversary
-       with probability that depends on delta.
+    """
+    Returns an observation after application of a random monotone adversary
+    with probability that depends on delta.
     """
 
     n, _ = Y.shape
@@ -47,8 +48,9 @@ def monotone_random(Y, delta):
 
 
 def monotone_hub(Y, portion):
-    """Returns an observation after application of a monotone adversary
-       that add a constant portion of edges to a node.
+    """
+    Returns an observation after application of a monotone adversary
+    that add a constant portion of edges to a node.
     """
 
     n, _ = Y.shape
@@ -76,10 +78,11 @@ def monotone_hub(Y, portion):
 
 
 def monotone_sync(n, percentage, snr, noise_deviation, generator=gen.synchronization_normalized):
-    """Returns an observation after application of a monotone adversary
-       for certain synchronization matrix generator.
     """
-    
+    Returns an observation after application of a monotone adversary
+    for certain synchronization matrix generator.
+    """
+
     Y, z = generator(n, percentage, snr)
     Y_sync = Y.copy()
     Z = z.dot(z.T)
