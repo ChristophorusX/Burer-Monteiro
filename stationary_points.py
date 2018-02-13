@@ -75,6 +75,15 @@ def full_circle_mat(dim):
     return X
 
 
+def full_circle_rect(dim):
+    """
+    Returns the low rank rectangular matrix by function full_circle_init.
+    """
+
+    theta = full_circle_init(dim)
+    return rect_from_theta(theta)
+
+
 def mat_from_theta(theta):
     """
     Returns the matrix X from a certain theta vector.
@@ -87,6 +96,15 @@ def mat_from_theta(theta):
         T[i, :] = T[i, :] - theta
     X = np.cos(T)
     return X
+
+
+def rect_from_theta(theta):
+    """
+    Returns the low rank rectangular matrix from theta.
+    """
+
+    theta = theta.reshape((-1, 1))
+    return np.hstack((np.cos(theta), np.sin(theta)))
 
 
 def gradient_norm_func(A, theta):
@@ -146,7 +164,6 @@ if __name__ == '__main__':
     while True:
         A, z = basin.get_observation(10, 1, 'positive-rows')
         dim, _ = A.shape
-
         for i in range(1000):
             theta = full_circle_init(dim)
             # theta = half_circle_init(dim)
