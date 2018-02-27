@@ -15,8 +15,8 @@ rc('text', usetex=True)
 
 def augmented_lagrangian(Y, k, plotting=False, printing=True):
     """
-	Returns the resulting local minimizer R of the BM problem.
-	"""
+    Returns the resulting local minimizer R of the BM problem.
+    """
 
     n, _ = Y.shape
     y = np.ones(n).reshape((-1, 1))
@@ -55,8 +55,8 @@ def augmented_lagrangian(Y, k, plotting=False, printing=True):
 
 def _generate_random_rect(n, k):
     """
-	Returns a random initialization of matrix.
-	"""
+    Returns a random initialization of matrix.
+    """
 
     R = np.random.uniform(-1, 1, (n, k))
     for i in range(n):
@@ -66,8 +66,8 @@ def _generate_random_rect(n, k):
 
 def _basis_vector(size, index):
     """
-	Returns a basis vector with 1 on certain index.
-	"""
+    Returns a basis vector with 1 on certain index.
+    """
 
     vec = np.zeros(size)
     vec[index] = 1
@@ -76,8 +76,8 @@ def _basis_vector(size, index):
 
 def _A_trace_vec(n, R):
     """
-	Returns a vector containing norm square of row vectors of R.
-	"""
+    Returns a vector containing norm square of row vectors of R.
+    """
 
     vec = np.empty(n)
     for i in range(n):
@@ -87,8 +87,8 @@ def _A_trace_vec(n, R):
 
 def _constraint_term_vec(n, R):
     """
-	Returns the vector required to compute objective function value.
-	"""
+    Returns the vector required to compute objective function value.
+    """
 
     vec = _A_trace_vec(n, R)
     constraint = vec - np.ones(n).reshape((-1, 1))
@@ -97,8 +97,8 @@ def _constraint_term_vec(n, R):
 
 def _augmented_lagrangian_func(Rv, Y, y, penalty, n, k):
     """
-	Returns the value of objective function of augmented Lagrangian.
-	"""
+    Returns the value of objective function of augmented Lagrangian.
+    """
 
     R = _vector_to_matrix(Rv, k)
     vec = _constraint_term_vec(n, R)
@@ -109,16 +109,16 @@ def _augmented_lagrangian_func(Rv, Y, y, penalty, n, k):
 
 def _vector_to_matrix(Rv, k):
     """
-	Returns a matrix from reforming a vector.
-	"""
+    Returns a matrix from reforming a vector.
+    """
     U = Rv.reshape((-1, k))
     return U
 
 
 def _matrix_to_vector(R):
     """
-	Returns a vector from flattening a matrix.
-	"""
+    Returns a vector from flattening a matrix.
+    """
 
     u = R.reshape((1, -1)).ravel()
     return u
@@ -130,8 +130,8 @@ def _matrix_to_vector(R):
 
 def _jacobian(Rv, Y, n, y, penalty, k):
     """
-	Returns the Jacobian matrix of the augmented Lagrangian problem.
-	"""
+    Returns the Jacobian matrix of the augmented Lagrangian problem.
+    """
 
     R = _vector_to_matrix(Rv, k)
     vec_trace_A = _A_trace_vec(n, R).ravel()
@@ -149,8 +149,8 @@ def _jacobian(Rv, Y, n, y, penalty, k):
 
 def _plot_R(R):
     """
-	Plot the found matrices R on their row vectors.
-	"""
+    Plot the found matrices R on their row vectors.
+    """
 
     plt.style.use('ggplot')
     plt.rc('text', usetex=True)
@@ -162,8 +162,8 @@ def _plot_R(R):
 
 def trust_region(A, k, plotting=False, printing=False, correlation_arr=None, curvature_arr=None, ground_truth=None, observation=None):
     """
-	Returns a Result object containing information of the local minimizer.
-	"""
+    Returns a Result object containing information of the local minimizer.
+    """
 
     print('Starting trust region on manifold...')
     n, _ = A.shape
@@ -174,8 +174,8 @@ def trust_region(A, k, plotting=False, printing=False, correlation_arr=None, cur
 
 def trust_region_plotting(A, k):
     """
-	Same as function trust_region, with an extra plotting functionality.
-	"""
+    Same as function trust_region, with an extra plotting functionality.
+    """
 
     print('Starting trust region on manifold...')
     n, _ = A.shape
@@ -186,8 +186,8 @@ def trust_region_plotting(A, k):
 
 def obj_function(A, Yv, n, k):
     """
-	Returns objective function for the trust region method
-	"""
+    Returns objective function for the trust region method
+    """
 
     Y = _vector_to_matrix(Yv, k)
     return -np.trace(A.dot(Y.dot(Y.T)))
@@ -195,8 +195,8 @@ def obj_function(A, Yv, n, k):
 
 def _projection(Z, Y):
     """
-	Returns projected point from tangent plane back to the manifold.
-	"""
+    Returns projected point from tangent plane back to the manifold.
+    """
 
     dia = np.diag(np.diag(Z.dot(Y.T)))
     return Z - dia.dot(Y)
@@ -204,16 +204,16 @@ def _projection(Z, Y):
 
 def _grad(A, Y):
     """
-	Returns gradient of the objective function.
-	"""
+    Returns gradient of the objective function.
+    """
 
     return -A.dot(Y)
 
 
 def _proj_grad_from_vec(A, Yv, n, k):
     """
-	Returns the projected gradient given point on manifold in vector form.
-	"""
+    Returns the projected gradient given point on manifold in vector form.
+    """
 
     Y = _vector_to_matrix(Yv, k)
     proj_grad = _projection(_grad(A, Y), Y)
@@ -222,8 +222,8 @@ def _proj_grad_from_vec(A, Yv, n, k):
 
 def _hessian_p(A, Yv, Tv, n, k):
     """
-	Returns the directional Hessian matrix.
-	"""
+    Returns the directional Hessian matrix.
+    """
 
     Y = _vector_to_matrix(Yv, k)
     T = _vector_to_matrix(Tv, k)
@@ -233,8 +233,8 @@ def _hessian_p(A, Yv, Tv, n, k):
 
 def _retraction(Tv):
     """
-	Returns the retracted point given one on the tangent plane.
-	"""
+    Returns the retracted point given one on the tangent plane.
+    """
 
     T = _vector_to_matrix(Tv, 2)
     n, _ = T.shape
@@ -244,8 +244,8 @@ def _retraction(Tv):
 
 
 """
-	Trust-region optimization.
-	"""
+Trust-region optimization.
+"""
 
 
 def _check_unknown_options(unknown_options):
@@ -362,8 +362,8 @@ class BaseQuadraticSubproblem(object):
     @property
     def fun(self):
         """
-	Value of objective function at current iteration.
-	"""
+        Value of objective function at current iteration.
+        """
         if self._f is None:
             self._f = self._fun(self._x)
         return self._f
@@ -371,8 +371,8 @@ class BaseQuadraticSubproblem(object):
     @property
     def jac(self):
         """
-	Value of jacobian of objective function at current iteration.
-	"""
+        Value of jacobian of objective function at current iteration.
+        """
         if self._g is None:
             self._g = self._jac(self._x)
         return self._g
@@ -380,8 +380,8 @@ class BaseQuadraticSubproblem(object):
     @property
     def hess(self):
         """
-	Value of hessian of objective function at current iteration.
-	"""
+        Value of hessian of objective function at current iteration.
+        """
         if self._h is None:
             self._h = self._hess(self._x)
         return self._h
@@ -395,8 +395,8 @@ class BaseQuadraticSubproblem(object):
     @property
     def jac_mag(self):
         """
-	Magniture of jacobian of objective function at current iteration.
-	"""
+        Magniture of jacobian of objective function at current iteration.
+        """
         if self._g_mag is None:
             self._g_mag = scipy.linalg.norm(self.jac)
         return self._g_mag
@@ -590,8 +590,8 @@ def _minimize_trust_region(fun, x0, n_rows, plotting, printing, args=(), jac=Non
 
 
 """
-	Newton-CG trust-region optimization.
-	"""
+Newton-CG trust-region optimization.
+"""
 
 
 def _minimize_trust_ncg(fun, x0, n_rows, plotting, printing, args=(), jac=None, hess=None, hessp=None,
@@ -604,8 +604,8 @@ def _minimize_trust_ncg(fun, x0, n_rows, plotting, printing, args=(), jac=None, 
 
 class CGSteihaugSubproblem(BaseQuadraticSubproblem):
     """
-	Quadratic subproblem solved by a conjugate gradient method
-	"""
+        Quadratic subproblem solved by a conjugate gradient method
+        """
 
     def solve(self, trust_radius):
         """

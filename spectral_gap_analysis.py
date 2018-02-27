@@ -9,8 +9,8 @@ import aux
 
 def _spectral_gap(A, z):
     """
-	Returns dual spectral gap given observation A and ground truth z.
-	"""
+    Returns dual spectral gap given observation A and ground truth z.
+    """
 
     gap = aux.laplacian_eigs(A, z)[1]
     print('Spectral gap: {}'.format(gap))
@@ -19,24 +19,24 @@ def _spectral_gap(A, z):
 
 def _gen_sync(n, percentage, snr):
     """
-	Returns a random observation from synchronization problem.
-	"""
+    Returns a random observation from synchronization problem.
+    """
 
     return syncgen.synchronization_usual(n, percentage, snr)
 
 
 def _gen_sbm(n, a, b):
     """
-	Returns a random observation from connected SBM.
-	"""
+    Returns a random observation from connected SBM.
+    """
 
     return sbmgen.sbm_logarithm(n, a, b)
 
 
 def _check_spectral_gap(A, z):
     """
-	Returns if the spectral gap is positive.
-	"""
+    Returns if the spectral gap is positive.
+    """
 
     if _spectral_gap(A, z) > np.exp(-8):
         return True
@@ -46,8 +46,8 @@ def _check_spectral_gap(A, z):
 
 def _gen_sparse_mat(n, level):
     """
-	Returns a sparse matrix with at most 4 elements non-zero.
-	"""
+    Returns a sparse matrix with at most 4 elements non-zero.
+    """
 
     mat = np.zeros(n**2)
     for i in range(2):
@@ -61,8 +61,8 @@ def _gen_sparse_mat(n, level):
 
 def _gen_row_mat(n, level):
     """
-	Returns a matrix with at most 4 rows and cols non-zero.
-	"""
+    Returns a matrix with at most 4 rows and cols non-zero.
+    """
 
     mat = np.zeros((n, n))
     for i in range(2):
@@ -74,8 +74,8 @@ def _gen_row_mat(n, level):
 
 def search_counter_eg(n, level, drift, n_iter, n_trail):
     """
-	Returns instances where SDP recovers but BM only finds local maximizer.
-	"""
+    Returns instances where SDP recovers but BM only finds local maximizer.
+    """
 
     # found_target = False
     examples = []
@@ -116,7 +116,8 @@ def search_counter_eg(n, level, drift, n_iter, n_trail):
                         'Finding global optimizer with BM (trail {})...'.format(j + 1))
                     # Q = bm.augmented_lagrangian(
                     #     A, 2, plotting=False, printing=False)
-                    result = bm.trust_region(A, 2, plotting=False, printing=False)
+                    result = bm.trust_region(
+                        A, 2, plotting=False, printing=False)
                     Q_vec = result.x
                     Q = Q_vec.reshape((n, 2))
                     flag = result.success
@@ -224,8 +225,8 @@ def search_counter_eg(n, level, drift, n_iter, n_trail):
 
 class CounterExample():
     """
-	Records the found counter example
-	"""
+    Records the found counter example
+    """
 
     def __init__(self, A, z, Q, gap, snr):
         self.A = A

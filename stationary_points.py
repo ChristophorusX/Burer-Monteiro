@@ -165,7 +165,7 @@ if __name__ == '__main__':
         A, z = basin.get_observation(10, 1, 'positive-rows')
         dim, _ = A.shape
         for i in range(1000):
-            theta = full_circle_init(dim)
+            theta = half_circle_init(dim)
             # theta = half_circle_init(dim)
             # print("The prediction X is: {}".format(mat_from_theta(theta)))
 
@@ -174,8 +174,10 @@ if __name__ == '__main__':
 
             curv_small = smallest_nonzero_curv(hessian)
             curv_large = largest_nonzero_curv(hessian)
-            print("The smallest nonzero curvature is: {}".format(np.real(curv_small)))
-            print("The largest nonzero curvature is: {}".format(np.real(curv_large)))
+            print("The smallest nonzero curvature is: {}".format(
+                np.real(curv_small)))
+            print("The largest nonzero curvature is: {}".format(
+                np.real(curv_large)))
             if curv_small > 10 ** (-6):
                 exit(0)
             elif curv_large < 10 ** (-6):

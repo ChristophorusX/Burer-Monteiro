@@ -38,7 +38,8 @@ def correlation_landscape(A, z, loops, cutoff=None, correlation_cutoff=None):
     correlation_arr_array = []
     for i in range(loops):
         correlation_arr = []
-        result = bm.trust_region(A, 2, plotting=False, printing=False, correlation_arr=correlation_arr, ground_truth=z)
+        result = bm.trust_region(
+            A, 2, plotting=False, printing=False, correlation_arr=correlation_arr, ground_truth=z)
         if correlation_cutoff is not None:
             Q = bm._vector_to_matrix(result.x, 2)
             QT = Q.transpose()
@@ -62,8 +63,8 @@ def curvature_landscape(A, z, loops):
     for i in range(loops):
         curvature_arr = []
         bm.trust_region(A, 2, plotting=False, printing=False,
-                                 correlation_arr=None, ground_truth=z,
-                                 curvature_arr=curvature_arr, observation=A)
+                        correlation_arr=None, ground_truth=z,
+                        curvature_arr=curvature_arr, observation=A)
         curvature_arr = np.array(curvature_arr)
         curvature_arr_array.append(curvature_arr)
     return curvature_arr_array
@@ -71,16 +72,16 @@ def curvature_landscape(A, z, loops):
 
 def func_val(A, point):
     """
-	Returns function value at the point.
-	"""
+    Returns function value at the point.
+    """
 
     return np.trace((A.dot(point)).dot(point.T))
 
 
 def pred_val(A, ground_truth, point):
     """
-	Returns the predicted upper bound given the strong concavity of the function.
-	"""
+    Returns the predicted upper bound given the strong concavity of the function.
+    """
 
     dim = A.shape[0]
     grad = A.dot(ground_truth)
@@ -90,8 +91,8 @@ def pred_val(A, ground_truth, point):
 
 def draw_landscape(info):
     """
-	Draws the difference against distance.
-	"""
+    Draws the difference against distance.
+    """
 
     diff_arr = info[:, 0]
     distance_arr = info[:, 1]
@@ -107,7 +108,8 @@ def draw_landscape(info):
     plt.xlabel(r'Distance $\|zz^T-QQ^T\|_F$ to ground truth')
     plt.ylabel(r'Difference $\mathrm{Tr}(AQ) -\mathrm{model}(Q)$')
     # plt.text(
-    #     0, -8, r'$\mathrm{model}(Q)=f(\bar Q(z))+\langle\mathrm{grad}f(\bar Q(z)),Q-\bar Q(z)\rangle-\frac{n}{2}\|Q-\bar Q(z)\|^2$')
+    # 0, -8, r'$\mathrm{model}(Q)=f(\bar Q(z))+\langle\mathrm{grad}f(\bar
+    # Q(z)),Q-\bar Q(z)\rangle-\frac{n}{2}\|Q-\bar Q(z)\|^2$')
     plt.legend()
     plt.savefig('local landscape.png', dpi=250)
     plt.close('all')
@@ -115,15 +117,16 @@ def draw_landscape(info):
 
 def draw_correlation_landscape(correlation_arr_array):
     """
-	Draws the trajectories of correlation change with different initializations.
-	"""
+    Draws the trajectories of correlation change with different initializations.
+    """
 
     plt.style.use('ggplot')
     plt.rc('text', usetex=True)
     plt.rc('font', family='serif')
     for arr in correlation_arr_array:
         plt.plot(range(arr.shape[0]), arr, alpha=.7)
-    plt.title(r'Correlation Trajectories under Trust Region' '\n' r'with Random Initializations')
+    plt.title(
+        r'Correlation Trajectories under Trust Region' '\n' r'with Random Initializations')
     plt.xlabel(r'Number of iterations $k$')
     plt.ylabel(r'Correlation $\|Q^Tz\|_2/n$')
     plt.savefig('correlation trajectories.png', dpi=250)
@@ -132,8 +135,8 @@ def draw_correlation_landscape(correlation_arr_array):
 
 def draw_curvature_landscape(curvature_arr_array):
     """
-	Draws the curvature on every step of trust region algorithm.
-	"""
+    Draws the curvature on every step of trust region algorithm.
+    """
 
     plt.style.use('ggplot')
     plt.rc('text', usetex=True)
@@ -141,7 +144,7 @@ def draw_curvature_landscape(curvature_arr_array):
     for arr in curvature_arr_array:
         plt.plot(range(arr.shape[0]), arr, alpha=.7)
     plt.title(r'Trajectories of smallest non-zero curvature'
-             '\n' r'under Trust Region with Random Initializations')
+              '\n' r'under Trust Region with Random Initializations')
     plt.xlabel(r'Number of Iterations $k$')
     plt.ylabel(r'Smallest Eigenvalue of Hessian $\neq 0$')
     plt.savefig('curvature trajectories.png', dpi=250)
@@ -150,8 +153,8 @@ def draw_curvature_landscape(curvature_arr_array):
 
 def get_observation(n, level, noise_type):
     """
-	Obtains an observation and ground truth from certain type of perturbation.
-	"""
+    Obtains an observation and ground truth from certain type of perturbation.
+    """
 
     if noise_type == 'positive-rows':
         z = np.ones(n).reshape((-1, 1))
@@ -186,8 +189,8 @@ def get_observation(n, level, noise_type):
 
 def get_ground_truth(z):
     """
-	Gets a corresponding matrix on the manifold from given ground truth.
-	"""
+    Gets a corresponding matrix on the manifold from given ground truth.
+    """
 
     dim = z.ravel().shape[0]
     z = z.reshape((-1, 1))
@@ -199,8 +202,8 @@ def get_ground_truth(z):
 
 def _gen_orthogonal(dim=2):
     """
-	Generates an orthogonal matrix of a certain dimension.
-	"""
+    Generates an orthogonal matrix of a certain dimension.
+    """
 
     random_state = np.random
     H = np.eye(dim)
@@ -223,8 +226,8 @@ def _gen_orthogonal(dim=2):
 
 def get_nearby_pt(ground_truth, distance):
     """
-	Gets a nearby point of certain distance given the position of ground truth.
-	"""
+    Gets a nearby point of certain distance given the position of ground truth.
+    """
 
     dim = ground_truth.shape[0]
     # generate a vector on tangent plane as a direction
@@ -241,7 +244,8 @@ def get_nearby_pt(ground_truth, distance):
     # project back onto the manifold
     for i in range(dim):
         point[i, :] = point[i, :] / np.linalg.norm(point[i, :])
-    distance = np.linalg.norm(ground_truth.dot(ground_truth.T) - point.dot(point.T))
+    distance = np.linalg.norm(ground_truth.dot(
+        ground_truth.T) - point.dot(point.T))
     return point, distance
 
 

@@ -7,8 +7,8 @@ from scipy import optimize as opt
 
 def trig_objective_function(A, theta):
     """
-	Returns the function value in trigonometric parameterization.
-	"""
+    Returns the function value in trigonometric parameterization.
+    """
 
     dim, _ = A.shape
     T = np.empty((dim, dim))
@@ -20,8 +20,8 @@ def trig_objective_function(A, theta):
 
 def trig_grad(A, theta):
     """
-	Returns the function gradient in trigonometric parameterization.
-	"""
+    Returns the function gradient in trigonometric parameterization.
+    """
 
     dim, _ = A.shape
     T = np.empty((dim, dim))
@@ -35,8 +35,8 @@ def trig_grad(A, theta):
 
 def trig_hess(A, theta):
     """
-	Returns the function Hessian in trigonometric parameterization.
-	"""
+    Returns the function Hessian in trigonometric parameterization.
+    """
 
     dim, _ = A.shape
     T = np.empty((dim, dim))
@@ -59,8 +59,8 @@ def trig_hessp(A, theta, p):
 
 def recover_solution(theta):
     """
-	Recovers triangular matrix Q from trigonometric parameterization.
-	"""
+    Recovers triangular matrix Q from trigonometric parameterization.
+    """
 
     Q = np.hstack((np.cos(theta).reshape((-1, 1)),
                    np.sin(theta).reshape((-1, 1))))
@@ -86,14 +86,15 @@ def trig_trust_region(A, z):
     return Q
 
 
-def trig_bfgs(A, z):
+def trig_bfgs(A, z, init=None):
     """
     Returns the optimization result Q under BFGS with
     trigonometric parameterization.
     """
 
     dim, _ = A.shape
-    init = np.random.uniform(-10, 10, size=dim)
+    if init is None:
+        init = np.random.uniform(-10, 10, size=dim)
     optimizer = opt.minimize(fun=lambda theta: -trig_objective_function(A, theta),
                              x0=init, jac=lambda theta: -trig_grad(A, theta),
                              method='BFGS')
