@@ -13,14 +13,17 @@ from matplotlib import rc
 rc('text', usetex=True)
 
 
-def augmented_lagrangian(Y, k, plotting=False, printing=True):
+def augmented_lagrangian(Y, k, plotting=False, printing=True, init=None):
     """
     Returns the resulting local minimizer R of the BM problem.
     """
 
     n, _ = Y.shape
     y = np.ones(n).reshape((-1, 1))
-    R = np.random.uniform(-1, 1, size=(n, k))
+    if init is None:
+        R = np.random.uniform(-1, 1, size=(n, k))
+    else:
+        R = init
     penalty = 1
     gamma = 10
     eta = .25
@@ -160,14 +163,17 @@ def _plot_R(R):
     plt.show()
 
 
-def trust_region(A, k, plotting=False, printing=False, correlation_arr=None, curvature_arr=None, ground_truth=None, observation=None):
+def trust_region(A, k, plotting=False, printing=False, correlation_arr=None, curvature_arr=None, ground_truth=None, observation=None, init=None):
     """
     Returns a Result object containing information of the local minimizer.
     """
 
     print('Starting trust region on manifold...')
     n, _ = A.shape
-    Y = _generate_random_rect(n, k)
+    if init is None:
+        Y = _generate_random_rect(n, k)
+    else:
+        Y = init
     return minimize_with_trust(lambda Yv: obj_function(A, Yv, n, k), Y, k, plotting, printing, jac=lambda Yv: _proj_grad_from_vec(
         A, Yv, n, k), hessp=lambda Yv, Tv: _hessian_p(A, Yv, Tv, n, k), correlation_arr=correlation_arr, curvature_arr=curvature_arr, ground_truth=ground_truth, observation=observation)
 
@@ -227,7 +233,8 @@ def _hessian_p(A, Yv, Tv, n, k):
 
     Y = _vector_to_matrix(Yv, k)
     T = _vector_to_matrix(Tv, k)
-    directional_hess = (A - np.diag((A.dot(Y)).dot(Y.T))).dot(T)
+    # directional_hess = (A - np.diag((A.dot(Y)).dot(Y.T))).dot(T)
+    directional_hess = (A - np.diag(np.sum(A * Y.dot(Y.T), axis=1))).dot(T)
     return _matrix_to_vector(directional_hess)
 
 
@@ -462,7 +469,7 @@ def _minimize_trust_region(fun, x0, n_rows, plotting, printing, args=(), jac=Non
 
     # limit the number of iterations
     if maxiter is None:
-        maxiter = len(x0) * 200
+        maxiter = len(x0) * 2000
 
     # init the search status
     warnflag = 0

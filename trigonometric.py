@@ -43,8 +43,8 @@ def trig_hess(A, theta):
     for i in range(dim):
         T[i, :] = theta[i]
         T[i, :] = T[i, :] - theta
-    one = np.ones(dim).reshape((-1, 1))
-    return A * np.cos(T) - np.diag((A * np.cos(T)).dot(one))
+    # one = np.ones(dim).reshape((-1, 1))
+    return A * np.cos(T) - np.diag(np.sum(A * np.cos(T), axis=1)) # np.diag((A * np.cos(T)).dot(one))
 
 
 def trig_hessp(A, theta, p):
@@ -83,7 +83,7 @@ def trig_trust_region(A, z):
                                        hess=lambda theta: -trig_hess(A, theta))
     theta = optimizer.x
     Q = recover_solution(theta)
-    return Q
+    return Q, theta
 
 
 def trig_bfgs(A, z, init=None):
@@ -100,7 +100,7 @@ def trig_bfgs(A, z, init=None):
                              method='BFGS')
     theta = optimizer.x
     Q = recover_solution(theta)
-    return Q
+    return Q, theta
 
 
 if __name__ == '__main__':

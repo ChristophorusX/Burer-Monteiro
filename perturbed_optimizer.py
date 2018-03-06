@@ -2,12 +2,19 @@ import numpy as np
 import trigonometric as trig
 import aux
 import scipy.optimize as opt
+import scipy as sp
+import burer_monteiro as bm
 
 
 def build_block_matrix(n):
-    A_1 = np.ones((int(n/2), int(n/2)))
-    A_2 = np.zeros((int(n/2), int(n/2)))
-    A = np.vstack((np.hstack((A_1, A_2)), np.hstack((A_2, A_1))))
+    """
+    Returns a block diagonal matrix with all one matrix on each block.
+    """
+
+    A_1 = np.ones((int(n/3), int(n/3)))
+    A_2 = np.zeros((int(n/3), int(n/3)))
+    A_3 = np.zeros((int(n/3), int(n/3)))
+    A = sp.linalg.block_diag(A_1, A_2, A_3)
     return A
 
 
@@ -50,18 +57,23 @@ if __name__ == '__main__':
     extra = sigma * np.ones((n, n))
     print("The block matrix B:\n{}".format(B))
 
-    theta_1 = np.zeros(int(n/2))
-    theta_2 = np.pi * np.ones(int(n/2))
-    theta = np.hstack((theta_1, theta_2))
+    theta_1 = np.zeros(int(n/3))
+    theta_2 = 2 / 3 * np.pi * np.ones(int(n/3))
+    theta_3 = 4 / 3 * np.pi * np.ones(int(n/3))
+    theta = np.hstack((theta_1, theta_2, theta_3))
     # theta = np.zeros(n)
     print("The spurious solution on B:\n{}".format(theta))
-    dim, _ = B.shape
-    T = np.empty((dim, dim))
-    for i in range(dim):
-        T[i, :] = theta[i]
-        T[i, :] = T[i, :] - theta
-    cosT = np.cos(T)
-    sinT = np.sin(T)
+    # dim, _ = B.shape
+    # T = np.empty((dim, dim))
+    # for i in range(dim):
+    #     T[i, :] = theta[i]
+    #     T[i, :] = T[i, :] - theta
+    # cosT = np.cos(T)
+    # sinT = np.sin(T)
+
+    S, theta_sp = trig.trig_bfgs(B, None, init=None)
+    print("The spurious solution:\n{}".format(S))
+    print("The spurious solution in trig:\n{}".format(np.mod(theta_sp, 2 * np.pi)))
 
     grad = trig.trig_grad(B, theta)
     print("The gradient of function at spurious solution:\n{}".format(grad))
@@ -69,17 +81,47 @@ if __name__ == '__main__':
     eigs = aux.sorted_eigenvalues(hess).ravel()
     print("The eigs of hessian of function at spurious solution:\n{}".format(eigs))
 
-    A = B + extra
+    A = (B + extra) / sigma
+    A = A - np.diag(np.diag(A))
     print("The observation looks like block matrix:\n{}".format(A))
 
-    grad_extra = trig.trig_grad(A, theta)
-    print("The gradient of function at spurious solution:\n{}".format(grad_extra))
-    hess_extra = trig.trig_hess(A, theta)
-    eigs_extra = aux.sorted_eigenvalues(hess_extra).ravel()
-    print("The eigs of hessian of function at spurious solution:\n{}".format(eigs_extra))
+    # grad_extra = trig.trig_grad(A, theta)
+    # print("The gradient of function at spurious solution:\n{}".format(grad_extra))
+    # hess_extra = trig.trig_hess(A, theta)
+    # eigs_extra = aux.sorted_eigenvalues(hess_extra).ravel()
+    # print("The eigs of hessian of function at spurious solution:\n{}".format(eigs_extra))
+    #
+    # theta_out, X = minimize_gradient(A, theta)
+    # print("Optimization result using min gradient:\n{}".format(theta_out))
 
-    theta_out, X = minimize_gradient(A, theta)
-    print("Optimization result using min gradient:\n{}".format(theta_out))
+    grad = trig.trig_grad(A, theta_sp)
+    print("The gradient of true function at spurious solution:\n{}".format(grad))
+    hess = trig.trig_hess(A, theta_sp)
+    eigs = aux.sorted_eigenvalues(hess).ravel()
+    print("The eigs of hessian of true function at spurious solution:\n{}".format(eigs))
 
-    Q = trig.trig_bfgs(A, None, init=None)
-    print("Optimization result using min function value:\n{}".format(Q.dot(Q.T)))
+    Q, theta_local = trig.trig_bfgs(A, None, init=theta_sp)
+    print("Optimization result using min function value:\n{}".format(np.mod(theta_local, 2 * np.pi)))
+    # dim, _ = B.shape
+    # T = np.empty((dim, dim))
+    # for i in range(dim):
+    #     T[i, :] = theta_local[i]
+    #     T[i, :] = T[i, :] - theta_local
+    # cosT = np.cos(T)
+    # sinT = np.sin(T)
+    # print(T)
+    # print(cosT)
+
+    # grad_trig = trig.trig_grad(A, theta_local)
+    # print("The gradient at this point is:\n{}".format(grad_trig))
+    # hess_trig = trig.trig_hess(A, theta_local)
+    # print("The eigenvalue of the corresponding Hessian:\n{}".format(aux.sorted_eigenvalues(hess_trig).ravel()))
+
+    # Q = bm.augmented_lagrangian(A, 2, plotting=False, printing=True, init=S)
+    result = bm.trust_region(A, 2, init=S)
+    Q = bm._vector_to_matrix(result.x, 2)
+    print("The place where spurious solution converges:\n{}".format(Q))
+    print("The gradient at this point:\n{}".format(A.dot(Q)))
+    hess_Q = A * (Q.dot(Q.T)) - np.diag(np.sum(A * Q.dot(Q.T), axis=1))
+    eigs = aux.sorted_eigenvalues(hess_Q).ravel()
+    print("The eigenvalue of the corresponding Hessian:\n{}".format(eigs))
