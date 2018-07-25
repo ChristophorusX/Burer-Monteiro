@@ -8,9 +8,11 @@ import numpy as np
 import networkx as nx
 import trigonometric as trig
 
+
 def adj_matrix_generator(n, p):
     G = nx.erdos_renyi_graph(n, p)
     return nx.adjacency_matrix(G)
+
 
 def local_method(A):
     Q, theta = trig.trig_bfgs(A, None, init=None)
@@ -21,6 +23,7 @@ def local_method(A):
         return 1
     else:
         return 0
+
 
 def working_loop(n_min, n_max, n_step, p_min, p_max, p_step, n_sample):
     n_row = int((n_max - n_min) / n_step)
