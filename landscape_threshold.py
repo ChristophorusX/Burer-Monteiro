@@ -7,6 +7,7 @@
 import numpy as np
 import networkx as nx
 import trigonometric as trig
+import matplotlib.pyplot as plt
 
 
 def adj_matrix_generator(n, p):
@@ -34,11 +35,11 @@ def working_loop(n_min, n_max, n_step, p_min, p_max, p_step, n_sample):
         print("Working on n = {}...\n".format(n))
         for col in range(0, n_col):
             p = p_min + p_step * col
-            prob = min(2**p * np.log(n) / n, 1)
-            print("Working on p = {}, prob = {}".format(p, prob))
+            # prob = min(2**p * np.log(n) / n, 1)
+            print("Working on p = {}, prob = {}".format(p, p))
             n_success = 0
             for sample in range(n_sample):
-                A = adj_matrix_generator(n, prob)
+                A = adj_matrix_generator(n, p)
                 result_indicator = local_method(A)
                 n_success += result_indicator
                 print("|", end='', flush=True)
@@ -56,5 +57,9 @@ if __name__ == '__main__':
     # result_indicator = local_method(A)
     # print(result_indicator)
 
-    result = working_loop(100, 1000, 100, -4, 6, 2, 50)
+    result = working_loop(10, 110, 10, 0, 1.1, 0.1, 50)
     print(result)
+    result = np.rot90(result)
+    np.save("result-array", result)
+    plt.matshow(result, fignum=None)
+    plt.savefig("success-rate-plot.png", dpi=200)
