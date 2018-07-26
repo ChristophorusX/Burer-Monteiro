@@ -6,7 +6,6 @@
 
 import numpy as np
 import networkx as nx
-import trigonometric as trig
 import matplotlib.pyplot as plt
 
 
@@ -16,7 +15,7 @@ def adj_matrix_generator(n, p):
 
 
 def local_method(A):
-    Q, theta = trig.trig_bfgs(A, None, init=None)
+    Q, theta = gradient_descent(A, 0.005)
     theta = np.mod(theta, 2 * np.pi)
     diff = np.abs(theta - theta[0])
     inf_norm_diff = np.max(diff)
@@ -24,6 +23,23 @@ def local_method(A):
         return 1
     else:
         return 0
+
+
+def gradient_descent(A, step_size, max_iteration=1000):
+    dim, _ = A.shape
+    target_val = np.trace(A.dot(np.ones((dim, dim))))
+    init = np.random.uniform(-np.pi, np.pi, size=dim)
+    theta = init
+    Q = np.empty((dim, 2))
+    for i in range(max_iteration):
+        x = np.cos(theta, out=None)
+        y = np.sin(theta, out=None)
+        Q = (np.vstack((x, y))).transpose()
+        theta -= step_size * 2 * (A.dot(x) * y - A.dot(y) * x)
+        obj_val = -np.trace(A.dot(Q.dot(Q.T)))
+        if np.abs(target_val - obj_val) < 0.1:
+            break
+    return Q, theta
 
 
 def working_loop(n_min, n_max, n_step, p_min, p_max, p_step, n_sample):
@@ -60,6 +76,6 @@ if __name__ == '__main__':
     result = working_loop(10, 110, 5, 0, 1.05, 0.05, 50)
     print(result)
     result = np.rot90(result)
-    np.save("result-array-high-precision", result)
+    np.save("result-array-new", result)
     plt.matshow(result, fignum=None)
-    plt.savefig("success-rate-plot-high-precision.png", dpi=200)
+    plt.savefig("success-rate-plot-new.png", dpi=200)
