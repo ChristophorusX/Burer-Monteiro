@@ -6,6 +6,8 @@
 
 import numpy as np
 import networkx as nx
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
@@ -73,9 +75,9 @@ if __name__ == '__main__':
     # result_indicator = local_method(A)
     # print(result_indicator)
 
-    result = working_loop(10, 110, 5, 0, 1.05, 0.05, 50)
-    print(result)
-    result = np.rot90(result)
-    np.save("result-array-new", result)
+    # result = working_loop(10, 110, 5, 0, 1.05, 0.05, 50)
+    # print(result)
+    # result = np.rot90(result)
+    result = np.load("result-array-new.npy")
     plt.matshow(result, fignum=None)
     plt.savefig("success-rate-plot-new.png", dpi=200)
