@@ -42,7 +42,7 @@ def working_loop(n_min, n_max, n_step, p_min, p_max, p_step, n_sample):
                 A = adj_matrix_generator(n, p)
                 result_indicator = local_method(A)
                 n_success += result_indicator
-                print("|", end='', flush=True)
+                print('|', end="", flush=True)
             success_rate = n_success / n_sample
             result[row, col] = success_rate
             print("-> Success rate: {}".format(success_rate))
@@ -57,9 +57,9 @@ if __name__ == '__main__':
     # result_indicator = local_method(A)
     # print(result_indicator)
 
-    result = working_loop(10, 110, 10, 0, 1.1, 0.1, 50)
+    result = working_loop(10, 110, 5, 0, 1.05, 0.05, 50)
     print(result)
     result = np.rot90(result)
-    np.save("result-array", result)
+    np.save("result-array-high-precision", result)
     plt.matshow(result, fignum=None)
-    plt.savefig("success-rate-plot.png", dpi=200)
+    plt.savefig("success-rate-plot-high-precision.png", dpi=200)
