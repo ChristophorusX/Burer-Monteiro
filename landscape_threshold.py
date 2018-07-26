@@ -56,5 +56,5 @@ if __name__ == '__main__':
     # result_indicator = local_method(A)
     # print(result_indicator)
 
-    result = working_loop(10, 100, 10, -6, 8, 2, 50)
+    result = working_loop(100, 1000, 100, -4, 6, 2, 50)
     print(result)
