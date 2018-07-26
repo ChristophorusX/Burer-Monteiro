@@ -10,12 +10,14 @@ def trig_objective_function(A, theta):
     Returns the function value in trigonometric parameterization.
     """
 
-    dim, _ = A.shape
-    T = np.empty((dim, dim))
-    for i in range(dim):
-        T[i, :] = theta[i]
-        T[i, :] = T[i, :] - theta
-    return np.trace(A.dot(np.cos(T)))
+    # dim, _ = A.shape
+    # T = np.empty((dim, dim))
+    # for i in range(dim):
+    #     T[i, :] = theta[i]
+    #     T[i, :] = T[i, :] - theta
+    # return np.trace(A.dot(np.cos(T)))
+    Q = recover_solution(theta)
+    return np.trace(A.dot(Q.dot(Q.T)))
 
 
 def trig_grad(A, theta):
@@ -24,14 +26,19 @@ def trig_grad(A, theta):
     """
 
     dim, _ = A.shape
-    T = np.empty((dim, dim))
-    for i in range(dim):
-        T[i, :] = theta[i]
-        T[i, :] = T[i, :] - theta
+    # T = np.empty((dim, dim))
+    # for i in range(dim):
+    #     T[i, :] = theta[i]
+    #     T[i, :] = T[i, :] - theta
+    # one = np.ones(dim).reshape((-1, 1))
+    # hadamard = (A * np.sin(T)).transpose()
+    # return hadamard.dot(one).ravel()
+    stack = np.tile(theta, (dim, 1))
+    T = stack.transpose() - stack
     one = np.ones(dim).reshape((-1, 1))
     hadamard = (A * np.sin(T)).transpose()
     return hadamard.dot(one).ravel()
-
+    
 
 def trig_hess(A, theta):
     """

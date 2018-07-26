@@ -34,16 +34,18 @@ def working_loop(n_min, n_max, n_step, p_min, p_max, p_step, n_sample):
         print("Working on n = {}...\n".format(n))
         for col in range(0, n_col):
             p = p_min + p_step * col
-            print("Working on p = {}, prob = {}".format(p, 2**p * np.log(n) / n))
+            prob = min(2**p * np.log(n) / n, 1)
+            print("Working on p = {}, prob = {}".format(p, prob))
             n_success = 0
             for sample in range(n_sample):
-                A = adj_matrix_generator(n, 2**p * np.log(n) / n)
+                A = adj_matrix_generator(n, prob)
                 result_indicator = local_method(A)
                 n_success += result_indicator
                 print("|", end='', flush=True)
-            print('')
             success_rate = n_success / n_sample
             result[row, col] = success_rate
+            print("-> Success rate: {}".format(success_rate))
+            print('')
         print(result[row])
         print('')
     return result
@@ -54,5 +56,5 @@ if __name__ == '__main__':
     # result_indicator = local_method(A)
     # print(result_indicator)
 
-    result = working_loop(100, 600, 100, -6, 8, 2, 50)
+    result = working_loop(10, 100, 10, -6, 8, 2, 50)
     print(result)
