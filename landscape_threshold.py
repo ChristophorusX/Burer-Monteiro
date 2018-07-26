@@ -19,7 +19,7 @@ def local_method(A):
     theta = np.mod(theta, 2 * np.pi)
     diff = np.abs(theta - theta[0])
     inf_norm_diff = np.max(diff)
-    if inf_norm_diff < 10**(-6):
+    if inf_norm_diff < 10**(-4):
         return 1
     else:
         return 0
