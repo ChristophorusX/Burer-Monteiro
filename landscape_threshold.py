@@ -77,7 +77,7 @@ if __name__ == '__main__':
     # result_indicator = local_method(A)
     # print(result_indicator)
 
-    result = working_loop(100, 1000, 50, 0, 3, 1, 50)
+    result = working_loop(100, 1050, 50, 0, 2.5, 0.5, 50)
     print(result)
     np.save("result-array-large", np.rot90(result))
     # result = np.load("result-array-new.npy")
