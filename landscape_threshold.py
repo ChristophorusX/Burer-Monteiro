@@ -54,7 +54,7 @@ def working_loop(n_min, n_max, n_step, p_min, p_max, p_step, n_sample):
         print("Working on n = {}...\n".format(n))
         for col in range(0, n_col):
             p = p_min + p_step * col
-            prob = min(2**p * np.log(n) / n, 1)
+            prob = min(p * np.log(n) / n, 1)
             print("Working on p = {}, prob = {}".format(p, prob))
             n_success = 0
             for sample in range(n_sample):
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     # result_indicator = local_method(A)
     # print(result_indicator)
 
-    result = working_loop(100, 1050, 50, 0, 2.5, 0.5, 50)
+    result = working_loop(100, 1050, 50, 1, 2.1, 0.1, 50)
     print(result)
     np.save("result-array-large", np.rot90(result))
     # result = np.load("result-array-new.npy")
