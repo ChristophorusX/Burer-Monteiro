@@ -37,7 +37,8 @@ def gradient_descent(A, step_size, max_iteration=1000):
         x = np.cos(theta, out=None)
         y = np.sin(theta, out=None)
         Q = (np.vstack((x, y))).transpose()
-        theta -= step_size * 2 * (A.dot(x) * y - A.dot(y) * x)
+        grad = 2 * (A.dot(x) * y - A.dot(y) * x)
+        theta -= step_size * grad
         obj_val = -np.trace(A.dot(Q.dot(Q.T)))
         if np.abs(target_val - obj_val) < 0.1:
             break
