@@ -78,9 +78,25 @@ if __name__ == '__main__':
     # result_indicator = local_method(A)
     # print(result_indicator)
 
-    result = working_loop(100, 1050, 50, 1, 2.1, 0.1, 50)
-    print(result)
-    np.save("result-array-large", np.rot90(result))
+    # result = working_loop(100, 1050, 50, 1, 2.1, 0.1, 50)
+    # print(result)
+    # np.save("result-array-large", np.rot90(result))
+
     # result = np.load("result-array-new.npy")
     # plt.matshow(result, fignum=None)
     # plt.savefig("success-rate-plot-new.png", dpi=200)
+
+    result1 = np.load("result-array-large.npy")
+    # print(result1)
+    result2 = np.load("result-array-large-extra.npy")
+    # print(result2)
+    result3 = np.load("result-array-large-extra2.npy")
+    # print(result3)
+    result = np.vstack((result3, result2, result1))
+    # print(result)
+    a, b = result.shape
+    zero_block = np.zeros((10, b))
+    one_block = np.ones((14, b))
+    final = np.vstack((one_block, result, zero_block))
+    print(final)
+    np.save("phase-transition-large", final)
