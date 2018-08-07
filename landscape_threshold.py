@@ -5,6 +5,7 @@
 # success rate.
 
 import numpy as np
+import scipy as sp
 import networkx as nx
 import matplotlib
 matplotlib.use('Agg')
@@ -21,7 +22,7 @@ def local_method(A):
     theta = np.mod(theta, 2 * np.pi)
     diff = np.abs(theta - theta[0])
     inf_norm_diff = np.max(diff)
-    if inf_norm_diff < 10**(-4):
+    if inf_norm_diff < 10**(-8):
         return 1
     else:
         return 0
@@ -40,7 +41,7 @@ def gradient_descent(A, step_size, max_iteration=1000):
         grad = 2 * (A.dot(x) * y - A.dot(y) * x)
         theta -= step_size * grad
         obj_val = -np.trace(A.dot(Q.dot(Q.T)))
-        if np.abs(target_val - obj_val) < 0.1:
+        if np.linalg.norm(grad) < 10**(-8):
             break
     return Q, theta
 
@@ -55,7 +56,8 @@ def working_loop(n_min, n_max, n_step, p_min, p_max, p_step, n_sample):
         print("Working on n = {}...\n".format(n))
         for col in range(0, n_col):
             p = p_min + p_step * col
-            prob = min(p * np.log(n) / n, 1)
+            # prob = min(p * np.log(n) / n, 1)
+            prob = p
             print("Working on p = {}, prob = {}".format(p, prob))
             n_success = 0
             for sample in range(n_sample):
@@ -78,8 +80,8 @@ if __name__ == '__main__':
     # result_indicator = local_method(A)
     # print(result_indicator)
 
-    # result = working_loop(100, 1050, 50, 1, 2.1, 0.1, 50)
-    # print(result)
+    result = working_loop(10, 100, 5, 0.1, 1.1, 0.1, 50)
+    print(result)
     # np.save("result-array-large", np.rot90(result))
 
     # result = np.load("result-array-new.npy")
@@ -109,10 +111,10 @@ if __name__ == '__main__':
     # print(final)
     # np.save("phase-transition-large-even-more", final)
 
-    result1 = np.load("phase-transition-large.npy")
-    print(result1.shape)
-    result2 = np.load("phase-transition-large-even-more.npy")
-    print(result2.shape)
-    final = np.hstack((result1, result2))
-    print(final)
-    np.save("phase-transition-large-final", final)
+    # result1 = np.load("phase-transition-large.npy")
+    # print(result1.shape)
+    # result2 = np.load("phase-transition-large-even-more.npy")
+    # print(result2.shape)
+    # final = np.hstack((result1, result2))
+    # print(final)
+    # np.save("phase-transition-large-final", final)
